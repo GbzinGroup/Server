@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Discord • Membros & Cargos</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'gg sans', 'Segoe UI', sans-serif; }
+
+  body {
+    background: #1e1f22;
+    color: #dbdee1;
+    min-height: 100vh;
+    padding: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .app {
+    display: flex;
+    gap: 20px;
+    max-width: 1200px;
+    width: 100%;
+  }
+
+  /* ===== SIDEBAR SERVIDOR ===== */
+  .sidebar {
+    width: 72px;
+    background: #1e1f22;
+    border-radius: 16px;
+    padding: 12px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    height: fit-content;
+  }
+
+  .guild-icon {
+    width: 48px; height: 48px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #5865f2, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+    position: relative;
+  }
+
+  .guild-icon.active::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 32px;
+    background: white;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .guild-icon:hover { border-radius: 12px; }
+
+  /* ===== MAIN ===== */
+  .main {
+    flex: 1;
+    background: #313338;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 600px;
+  }
+
+  .main-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #1e1f22;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .main-header h2 {
+    font-size: 16px;
+    color: #f2f3f5;
+    font-weight: 600;
+  }
+
+  .main-header .count {
+    background: #1e1f22;
+    color: #949ba4;
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+
+  .search-bar {
+    margin-left: auto;
+    background: #1e1f22;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #dbdee1;
+    font-size: 13px;
+    width: 200px;
+    outline: none;
+  }
+
+  .search-bar::placeholder { color: #6d6f78; }
+
+  /* ===== LISTA DE MEMBROS ===== */
+  .members-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px 20px;
+  }
+
+  .members-list::-webkit-scrollbar { width: 8px; }
+  .members-list::-webkit-scrollbar-track { background: transparent; }
+  .members-list::-webkit-scrollbar-thumb { background: #1a1b1e; border-radius: 4px; }
+  .members-list::-webkit-scrollbar-thumb:hover { background: #111214; }
+
+  .member {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.15s;
+    position: relative;
+  }
+
+  .member:hover { background: #35373c; }
+
+  .member.selected { background: #404249; }
+
+  .avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: #5865f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    font-size: 15px;
+    overflow: hidden;
+    border: 2px solid transparent;
+  }
+
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  .status-dot {
+    position: absolute;
+    bottom: -2px; right: -2px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #23a55a;
+    border: 3px solid #313338;
+  }
+
+  .status-dot.offline { background: #80848e; }
+  .status-dot.bot { background: #5865f2; }
+  .status-dot.timeout { background: #f23f43; }
+
+  .member-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .member-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #f2f3f5;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .member-name .global {
+    color: #949ba4;
+    font-weight: 400;
+    font-size: 13px;
+  }
+
+  .bot-tag {
+    background: #5865f2;
+    color: white;
+    font-size: 10px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  .clan-tag {
+    background: #1e1f22;
+    color: #b5bac1;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    border: 1px solid #3f4147;
+  }
+
+  .member-username {
+    font-size: 12px;
+    color: #949ba4;
+    margin-top: 1px;
+  }
+
+  .member-roles {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .role-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 1px solid #1e1f22;
+  }
+
+  .f12-hint {
+    font-size: 10px;
+    color: #6d6f78;
+    background: #1e1f22;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-family: monospace;
+    opacity: 0;
+    transition: 0.15s;
+  }
+
+  .member:hover .f12-hint { opacity: 1; }
+
+  /* ===== MODAL F12 ===== */
+  .f12-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: none;
+    justify-content: center;
+    align-items: flex-end;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+  }
+
+  .f12-overlay.active { display: flex; }
+
+  .f12-panel {
+    background: #1e1f22;
+    width: 100%;
+    max-width: 850px;
+    height: 70vh;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.25s ease-out;
+    border: 1px solid #3f4147;
+    border-bottom: none;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.7);
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .f12-topbar {
+    display: flex;
+    align-items: center;
+    background: #2b2d31;
+    padding: 8px 14px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    gap: 8px;
+    border-bottom: 1px solid #3f4147;
+  }
+
+  .f12-dots { display: flex; gap: 6px; }
+  .f12-dots span { width: 12px; height: 12px; border-radius: 50%; }
+  .f12-dots .r { background: #ff5f56; }
+  .f12-dots .y { background: #ffbd2e; }
+  .f12-dots .g { background: #27c93f; }
+
+  .f12-title {
+    flex: 1;
+    text-align: center;
+    font-size: 12px;
+    color: #949ba4;
+    font-family: monospace;
+  }
+
+  .f12-close {
+    background: transparent;
+    border: none;
+    color: #949ba4;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 2px 10px;
+    border-radius: 4px;
+  }
+
+  .f12-close:hover { background: #404249; color: #fff; }
+
+  .f12-tabs {
+    display: flex;
+    background: #2b2d31;
+    padding: 0 10px;
+    gap: 4px;
+    border-bottom: 1px solid #3f4147;
+    overflow-x: auto;
+  }
+
+  .f12-tab {
+    padding: 8px 14px;
+    font-size: 12px;
+    color: #949ba4;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    font-family: monospace;
+    background: transparent;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    white-space: nowrap;
+  }
+
+  .f12-tab:hover { color: #dbdee1; }
+  .f12-tab.active { color: #fff; border-bottom-color: #5865f2; }
+
+  .f12-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 13px;
+    color: #b5bac1;
+  }
+
+  .f12-content::-webkit-scrollbar { width: 10px; }
+  .f12-content::-webkit-scrollbar-track { background: #1e1f22; }
+  .f12-content::-webkit-scrollbar-thumb { background: #3f4147; border-radius: 5px; }
+
+  .f12-content pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.6;
+  }
+
+  .f12-content .key { color: #79c0ff; }
+  .f12-content .str { color: #a5d6ff; }
+  .f12-content .num { color: #79c0ff; }
+  .f12-content .bool { color: #ff7b72; }
+  .f12-content .null { color: #ff7b72; font-style: italic; }
+  .f12-content .comment { color: #6e7681; font-style: italic; }
+
+  .perm-badge {
+    display: inline-block;
+    background: #5865f2;
+    color: white;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin: 2px 4px 2px 0;
+  }
+
+  .f12-footer {
+    padding: 8px 14px;
+    background: #2b2d31;
+    font-size: 11px;
+    color: #6e7681;
+    font-family: monospace;
+    border-top: 1px solid #3f4147;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ===== AVATAR PREVIEW ===== */
+  .user-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: #2b2d31;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    border: 1px solid #3f4147;
+  }
+
+  .user-card .avatar-lg {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: #5865f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 700;
+    color: white;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .user-card .avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
+
+  .user-card-info h3 {
+    color: #f2f3f5;
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  .user-card-info p {
+    color: #949ba4;
+    font-size: 13px;
+    font-family: monospace;
+  }
+
+  .join-info {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #b5bac1;
+  }
+
+  .empty {
+    text-align: center;
+    padding: 40px;
+    color: #6d6f78;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="guild-icon active" title="Servidor">🐉</div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="main-header">
+      <h2>👥 Membros do Servidor</h2>
+      <span class="count" id="memberCount">0</span>
+      <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Buscar membro...">
+    </div>
+    <div class="members-list" id="membersList"></div>
+  </div>
+</div>
+
+<!-- Modal F12 -->
+<div class="f12-overlay" id="f12Overlay">
+  <div class="f12-panel">
+    <div class="f12-topbar">
+      <div class="f12-dots">
+        <span class="r"></span><span class="y"></span><span class="g"></span>
+      </div>
+      <div class="f12-title" id="f12Title">DevTools — member.json</div>
+      <button class="f12-close" onclick="fecharF12()">✕</button>
+    </div>
+
+    <div class="f12-tabs">
+      <button class="f12-tab active" data-tab="json">📄 JSON</button>
+      <button class="f12-tab" data-tab="user">👤 User</button>
+      <button class="f12-tab" data-tab="roles">🎭 Roles</button>
+      <button class="f12-tab" data-tab="join">📥 Join Info</button>
+      <button class="f12-tab" data-tab="raw">🔧 Raw</button>
+    </div>
+
+    <div class="f12-content" id="f12Content"></div>
+
+    <div class="f12-footer">
+      <span id="f12Status">Console: pronto</span>
+      <span>ESC para fechar</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================================================
+// 📦 DADOS COLETADOS DO DISCORD (JSON fornecido)
+// =====================================================
+const DISCORD_DATA = {
+  "guild_id": "1559767910812225597",
+  "members": [
+    {
+      "member": {
+        "avatar": null, "banner": null, "communication_disabled_until": null,
+        "flags": 0, "joined_at": "2026-10-15T20:23:29.665000+00:00",
+        "nick": null, "pending": false, "premium_since": null,
+        "roles": ["1559997397361238097","1559983581084786868","1559985612608503819","1559991243075752036"],
+        "user": {
+          "id": "1478465323958014130", "username": "paulo_2501_58581",
+          "avatar": "48a5cee9a9c692096bd14c2787f0e45f", "discriminator": "0",
+          "global_name": "Paulo"
+        },
+        "mute": false, "deaf": false
+      },
+      "source_invite_code": "hKUfSdpcM", "join_source_type": 5,
+      "inviter_id": "1498393372291891360",
+      "join_source_application_id": null, "join_source_channel_id": null
+    },
+    {
+      "member": {
+        "avatar": null, "banner": null, "communication_disabled_until": null,
+        "flags": 0, "joined_at": "2026-10-15T18:25:30.141000+00:00",
+        "nick": null, "pending": false, "premium_since": null,
+        "roles": ["1559985612608503819","1559997397361238097","1560357969558904945","1559983581084786868","1560356914783854612"],
+        "user": {
+          "id": "1533965368723243170", "username": "Toshiro Bot",
+          "avatar": "0f90aed03f685d005cb2d4aa34313e95", "discriminator": "9182",
+          "global_name": null, "bot": true
+        },
+        "mute": false, "deaf": false
+      },
+      "source_invite_code": null, "join_source_type": 0,
+      "inviter_id": null, "join_source_application_id": null, "join_source_channel_id": null
+    },
+    {
+      "member": {
+        "avatar": null, "banner": null, "communication_disabled_until": null,
+        "flags": 0, "joined_at": "2026-10-15T18:23:20.683000+00:00",
+        "nick": null, "pending": false, "premium_since": null,
+        "roles": ["1559997397361238097","1559985612608503819","1559983581084786868","1560000943012053113"],
+        "user": {
+          "id": "1503164888023830590", "username": "negaodealagoas_155",
+          "avatar": "4df675fb0160e0e5d5d71d7cb23ac3a0", "discriminator": "0",
+          "global_name": "wsweetiefox"
+        },
+        "mute": false, "deaf": false
+      },
+      "source_invite_code": "hKUfSdpcM", "join_source_type": 5,
+      "inviter_id": "1498393372291891360",
+      "join_source_application_id": null, "join_source_channel_id": null
+    },
+    {
+      "member": {
+        "avatar": null, "banner": null, "communication_disabled_until": null,
+        "flags": 0, "joined_at": "2026-10-15T18:23:15.595000+00:00",
+        "nick": null, "pending": false, "premium_since": null,
+        "roles": ["1559985993522880512","1560000448222593184","1559998005547896964","1559985612608503819","1559997397361238097","1559990812069335186","1559983581084786868"],
+        "user": {
+          "id": "1484326655899205694", "username": "yumihd",
+          "avatar": "26e5262b1da30d04053d6384972f4c41", "discriminator": "0",
+          "global_name": "Yumi"
+        },
+        "mute": false, "deaf": false
+      },
+      "source_invite_code": "hKUfSdpcM", "join_source_type": 5,
+      "inviter_id": "1498393372291891360",
+      "join_source_application_id": null, "join_source_channel_id": null
+    },
+    {
+      "member": {
+        "avatar": null, "banner": null, "communication_disabled_until": null,
+        "flags": 0, "joined_at": "2026-10-15T18:13:05.256000+00:00",
+        "nick": null, "pending": false, "premium_since": null,
+        "roles": ["1559985993522880512","1559998272028803073","1560000768923271168","1559998005547896964","1560000942303350884","1559998983907184680","1559997397361238097","1559990812069335186","1559999207778033724"],
+        "user": {
+          "id": "1510785658468302850", "username": ".shadow88_",
+          "avatar": "dff324bd282ce93f5a11e3806bf753dd", "discriminator": "0",
+          "global_name": ".𝚮.𝚮.𝚮.",
+          "avatar_decoration_data": { "asset": "a_a84650f0a41e2024045308eb265c33ac", "sku_id": "1538978299785781278", "expires_at": 1793059200 },
+          "clan": { "identity_guild_id": "1164979454557290546", "identity_enabled": true, "tag": "FC", "badge": "a3290d71cdc373a5f63598746c8f1476" }
+        },
+        "mute": false, "deaf": false
+      },
+      "source_invite_code": "hKUfSdpcM", "join_source_type": 5,
+      "inviter_id": "1498393372291891360",
+      "join_source_application_id": null, "join_source_channel_id": null
+    },
+    {
+      "member": {
+        "avatar": null, "banner": null,
+        "communication_disabled_until": "2026-10-15T19:27:37.421000+00:00",
+        "flags": 0, "joined_at": "2026-10-15T18:10:50.757000+00:00",
+        "nick": null, "pending": false, "premium_since": null,
+        "roles": ["1559997397361238097","1559998005547896964","1560000943012053113"],
+        "user": {
+          "id": "970037632035876865", "username": "zlyraxz",
+          "avatar": "05fad5d7b17c3da1bb897ad129766719", "discriminator": "0",
+          "global_name": "Snowxz"
+        },
+        "mute": false, "deaf": false
+      },
+      "source_invite_code": "hKUfSdpcM", "join_source_type": 5,
+      "inviter_id": "1498393372291891360",
+      "join_source_application_id": null, "join_source_channel_id": null
+    },
+    {
+      "member": {
+        "avatar": null, "banner": null, "communication_disabled_until": null,
+        "flags": 0, "joined_at": "2026-10-15T18:09:54.586000+00:00",
+        "nick": null, "pending": false, "premium_since": null,
+        "roles": ["1559985993522880512","1559997397361238097","1559990812069335186","1559998005547896964"],
+        "user": {
+          "id": "1070359550957461584", "username": "7.9.3",
+          "avatar": "951a3e46aac1a89f76724e7951649ffd", "discriminator": "0",
+          "global_name": "Angel",
+          "avatar_decoration_data": { "asset": "a_8ffa2ba9bff18e96b76c2e66fd0d7fa3", "sku_id": "1144307957425778779", "expires_at": null },
+          "collectibles": { "nameplate": { "sku_id": "1409898407920668782", "asset": "nameplates/lunar_eclipse/moonlit_charm/", "label": "COLLECTIBLES_LUNAR_ECLIPSE_MOONLIT_CHARM_NP_A11Y", "palette": "cobalt" } },
+          "clan": { "identity_guild_id": "1369705524270071868", "identity_enabled": true, "tag": "゛ໃජ", "badge": "7cf06b1f80be8c382f178b5ad49e1867" }
+        },
+        "mute": false, "deaf": false
+      },
+      "source_invite_code": "hKUfSdpcM", "join_source_type": 5,
+      "inviter_id": "1498393372291891360",
+      "join_source_application_id": null, "join_source_channel_id": null
+    },
+    {
+      "member": {
+        "avatar": null, "banner": null, "communication_disabled_until": null,
+        "flags": 0, "joined_at": "2026-10-14T03:20:49.098000+00:00",
+        "nick": null, "pending": false, "premium_since": null,
+        "roles": ["1559985993522880512","1560000768923271168","1559985380994846850","1560000448222593184","1559999792392835172","1560001545741926562","1560000945159536750","1559997397361238097","1560001451890311218","1560000942194303027","1559983255690805428","1559999295934042132","1559999627904819221","1559984117968408607"],
+        "user": {
+          "id": "1498393372291891360", "username": "g4bs_silva",
+          "avatar": "59024df8c101bfd54a57e81718baeecf", "discriminator": "0",
+          "global_name": "</𝐆𝐛𝟑𝐢𝐧>",
+          "clan": { "identity_guild_id": "1477072953953882214", "identity_enabled": true, "tag": "zuki", "badge": "0625caabbdb25cb8406ebdd64b90a445" }
+        },
+        "mute": false, "deaf": false
+      },
+      "source_invite_code": null, "join_source_type": 0,
+      "inviter_id": null, "join_source_application_id": null, "join_source_channel_id": null
+    }
+  ],
+  "page_result_count": 8,
+  "total_result_count": 8
+};
+
+// =====================================================
+// 🎨 MAPA DE CORES DE CARGOS (por ID)
+// =====================================================
+const ROLE_COLORS = {
+  "1559983581084786868": "#5865f2",  // Membro
+  "1559985612608503819": "#faa61a",  // Destaque
+  "1559997397361238097": "#ff3b30",  // Admin
+  "1559991243075752036": "#57f287",  // VIP
+  "1559998005547896964": "#eb459e",  // Booster
+  "1559990812069335186": "#00b0f4",  // Staff
+  "1559985993522880512": "#f47fff",  // Owner
+  "1559985380994846850": "#ff9500",  // Mod
+  "1559999792392835172": "#34c759",  // Helper
+  "1560001545741926562": "#af52de",  // Event
+  "1560000945159536750": "#ffcc00",  // Premium
+  "1560001451890311218": "#00d4aa",  // Parceiro
+  "1560000942194303027": "#ff6b6b",  // Dev
+  "1559983255690805428": "#9b59b6",  // Artista
+  "1559999295934042132": "#e91e63",  // Streamer
+  "1559999627904819221": "#3498db",  // Gamer
+  "1559984117968408607": "#1abc9c",  // Ativo
+  "1560000768923271168": "#e67e22",  // Vip+
+  "1560000448222593184": "#c0392b",  // Elite
+  "1559998272028803073": "#16a085",  // Beta
+  "1560000942303350884": "#8e44ad",  // Tester
+  "1559998983907184680": "#d35400",  // Membro+
+  "1559999207778033724": "#27ae60",  // Novo
+  "1559991243075752036": "#57f287",
+  "1560357969558904945": "#5865f2",
+  "1560356914783854612": "#faa61a",
+  "1560000943012053113": "#eb459e"
+};
+
+// =====================================================
+// 🚀 RENDERIZAÇÃO
+// =====================================================
+const membersList = document.getElementById("membersList");
+const memberCountEl = document.getElementById("memberCount");
+const searchBar = document.getElementById("searchBar");
+
+let membrosFiltrados = DISCORD_DATA.members;
+
+function getAvatarUrl(user) {
+  if (!user.avatar) return null;
+  const ext = user.avatar.startsWith("a_") ? "gif" : "png";
+  return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${ext}?size=128`;
+}
+
+function getInitials(user) {
+  const name = user.global_name || user.username || "?";
+  return name.replace(/[^\p{L}\p{N}]/gu, "").slice(0, 2).toUpperCase() || "?";
+}
+
+function renderMembers(lista) {
+  membersList.innerHTML = "";
+
+  if (lista.length === 0) {
+    membersList.innerHTML = '<div class="empty">😕 Nenhum membro encontrado</div>';
+    memberCountEl.textContent = "0";
+    return;
+  }
+
+  lista.forEach((item, index) => {
+    const m = item.member;
+    const u = m.user;
+    const avatarUrl = getAvatarUrl(u);
+    const initials = getInitials(u);
+
+    // Status
+    let statusClass = "offline";
+    let statusTitle = "Offline";
+    if (u.bot) { statusClass = "bot"; statusTitle = "Bot"; }
+    else if (m.communication_disabled_until) { statusClass = "timeout"; statusTitle = "Silenciado"; }
+    else { statusClass = ""; statusTitle = "Online"; }
+
+    // Roles
+    const rolesHtml = m.roles.slice(0, 6).map(rid => {
+      const cor = ROLE_COLORS[rid] || "#99aab5";
+      return `<span class="role-dot" style="background:${cor}" title="${rid}"></span>`;
+    }).join("");
+    const maisRoles = m.roles.length > 6 ? `<span style="font-size:10px;color:#949ba4">+${m.roles.length - 6}</span>` : "";
+
+    const div = document.createElement("div");
+    div.className = "member";
+    div.dataset.index = index;
+    div.onclick = () => abrirF12(item, index);
+    div.innerHTML = `
+      <div class="avatar-wrap">
+        <div class="avatar">
+          ${avatarUrl ? `<img src="${avatarUrl}" alt="${u.username}" onerror="this.parentElement.textContent='${initials}'">` : initials}
+        </div>
+        <div class="status-dot ${statusClass}" title="${statusTitle}"></div>
+      </div>
+      <div class="member-info">
+        <div class="member-name">
+          ${u.global_name || u.username}
+          ${u.bot ? '<span class="bot-tag">BOT</span>' : ""}
+          ${u.clan ? `<span class="clan-tag">${u.clan.tag}</span>` : ""}
+        </div>
+        <div class="member-username">@${u.username}</div>
+        <div class="member-roles">${rolesHtml}${maisRoles}</div>
+      </div>
+      <div class="f12-hint">F12 ↵</div>
+    `;
+    membersList.appendChild(div);
+  });
+
+  memberCountEl.textContent = lista.length;
+}
+
+// Busca
+searchBar.addEventListener("input", e => {
+  const q = e.target.value.toLowerCase().trim();
+  if (!q) { membrosFiltrados = DISCORD_DATA.members; }
+  else {
+    membrosFiltrados = DISCORD_DATA.members.filter(item => {
+      const u = item.member.user;
+      return (u.username || "").toLowerCase().includes(q)
+        || (u.global_name || "").toLowerCase().includes(q)
+        || (u.id || "").includes(q);
+    });
+  }
+  renderMembers(membrosFiltrados);
+});
+
+renderMembers(membrosFiltrados);
+
+// =====================================================
+// 🔍 MODAL F12
+// =====================================================
+let membroAtual = null;
+let abaAtual = "json";
+
+const overlay = document.getElementById("f12Overlay");
+const f12Title = document.getElementById("f12Title");
+const f12Content = document.getElementById("f12Content");
+const f12Status = document.getElementById("f12Status");
+
+function abrirF12(item, index) {
+  membroAtual = item;
+  const u = item.member.user;
+  f12Title.textContent = `DevTools — member[${index}] @${u.username}`;
+  f12Status.textContent = `Inspecionando: ${u.username}`;
+  overlay.classList.add("active");
+
+  document.querySelectorAll(".member").forEach(el => el.classList.remove("selected"));
+  document.querySelector(`.member[data-index="${index}"]`)?.classList.add("selected");
+
+  renderAba(abaAtual);
+}
+
+function fecharF12() {
+  overlay.classList.remove("active");
+  document.querySelectorAll(".member").forEach(el => el.classList.remove("selected"));
+}
+
+document.querySelectorAll(".f12-tab").forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll(".f12-tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    abaAtual = tab.dataset.tab;
+    renderAba(abaAtual);
+  };
+});
+
+function syntaxHighlight(json) {
+  return json
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
+      let cls = "num";
+      if (/^"/.test(match)) cls = /:$/.test(match) ? "key" : "str";
+      else if (/true|false/.test(match)) cls = "bool";
+      else if (/null/.test(match)) cls = "null";
+      return `<span class="${cls}">${match}</span>`;
+    });
+}
+
+function renderAba(tipo) {
+  if (!membroAtual) return;
+  const m = membroAtual.member;
+  const u = m.user;
+  const avatarUrl = getAvatarUrl(u);
+  const initials = getInitials(u);
+
+  const userCard = `
+    <div class="user-card">
+      <div class="avatar-lg">
+        ${avatarUrl ? `<img src="${avatarUrl}" alt="${u.username}" onerror="this.parentElement.textContent='${initials}'">` : initials}
+      </div>
+      <div class="user-card-info">
+        <h3>${u.global_name || u.username} ${u.bot ? '🤖' : ''}</h3>
+        <p>@${u.username} • ID: ${u.id}</p>
+        ${u.clan ? `<p style="color:#b5bac1;margin-top:4px">🏷️ Clan: <b>${u.clan.tag}</b></p>` : ''}
+        <p class="join-info">📥 Entrou em: ${new Date(m.joined_at).toLocaleString('pt-BR')}</p>
+      </div>
+    </div>
+  `;
+
+  if (tipo === "json") {
+    f12Content.innerHTML = userCard + `<pre>${syntaxHighlight(JSON.stringify(membroAtual, null, 2))}</pre>`;
+  }
+
+  else if (tipo === "user") {
+    f12Content.innerHTML = userCard + `<pre>${syntaxHighlight(JSON.stringify(u, null, 2))}</pre>`;
+  }
+
+  else if (tipo === "roles") {
+    const rolesBadges = m.roles.map(rid => {
+      const cor = ROLE_COLORS[rid] || "#99aab5";
+      return `<span class="perm-badge" style="background:${cor}">${rid}</span>`;
+    }).join("");
+    f12Content.innerHTML = `
+      <div style="color:#6e7681;margin-bottom:12px;">// 🎭 Cargos do membro (${m.roles.length} no total)</div>
+      <div style="margin-bottom:16px;line-height:2;">${rolesBadges}</div>
+      <div style="color:#6e7681;margin-bottom:8px;">// Array bruto</div>
+      <pre>${syntaxHighlight(JSON.stringify(m.roles, null, 2))}</pre>
+    `;
+  }
+
+  else if (tipo === "join") {
+    const joinInfo = {
+      joined_at: m.joined_at,
+      joined_at_formatado: new Date(m.joined_at).toLocaleString('pt-BR'),
+      source_invite_code: membroAtual.source_invite_code,
+      join_source_type: membroAtual.join_source_type,
+      inviter_id: membroAtual.inviter_id,
+      join_source_application_id: membroAtual.join_source_application_id,
+      join_source_channel_id: membroAtual.join_source_channel_id,
+      pending: m.pending,
+      premium_since: m.premium_since,
+      communication_disabled_until: m.communication_disabled_until,
+      mute: m.mute,
+      deaf: m.deaf,
+      flags: m.flags
+    };
+    f12Content.innerHTML = userCard + `<pre>${syntaxHighlight(JSON.stringify(joinInfo, null, 2))}</pre>`;
+  }
+
+  else if (tipo === "raw") {
+    f12Content.innerHTML = `<pre>${syntaxHighlight(JSON.stringify(membroAtual, null, 2))}</pre>`;
+  }
+}
+
+// ESC + clique fora
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") fecharF12();
+});
+
+overlay.addEventListener("click", e => {
+  if (e.target === overlay) fecharF12();
+});
+</script>
+</body>
+</html>
