@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Discord • Membros & Cargos</title>
+<title>Hierarquia de Cargos • Discord</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'gg sans', 'Segoe UI', sans-serif; }
 
@@ -13,238 +13,194 @@
     padding: 24px;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
   }
 
   .app {
-    display: flex;
-    gap: 20px;
-    max-width: 1200px;
+    max-width: 900px;
     width: 100%;
   }
 
-  /* ===== SIDEBAR SERVIDOR ===== */
-  .sidebar {
-    width: 72px;
-    background: #1e1f22;
-    border-radius: 16px;
-    padding: 12px 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    height: fit-content;
+  .header {
+    background: #2b2d31;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid #3f4147;
   }
 
-  .guild-icon {
-    width: 48px; height: 48px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #5865f2, #8b5cf6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .header h1 {
     font-size: 20px;
-    font-weight: 700;
-    color: white;
-    cursor: pointer;
-    transition: 0.2s;
-    position: relative;
-  }
-
-  .guild-icon.active::before {
-    content: '';
-    position: absolute;
-    left: -12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 32px;
-    background: white;
-    border-radius: 0 4px 4px 0;
-  }
-
-  .guild-icon:hover { border-radius: 12px; }
-
-  /* ===== MAIN ===== */
-  .main {
-    flex: 1;
-    background: #313338;
-    border-radius: 16px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    min-height: 600px;
-  }
-
-  .main-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid #1e1f22;
+    color: #f2f3f5;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     gap: 10px;
   }
 
-  .main-header h2 {
-    font-size: 16px;
-    color: #f2f3f5;
-    font-weight: 600;
+  .header h1 .dot {
+    width: 12px; height: 12px;
+    background: #5865f2;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #5865f2;
   }
 
-  .main-header .count {
+  textarea {
+    width: 100%;
+    min-height: 140px;
     background: #1e1f22;
-    color: #949ba4;
-    font-size: 12px;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-weight: 600;
-  }
-
-  .search-bar {
-    margin-left: auto;
-    background: #1e1f22;
-    border: none;
+    border: 1px solid #3f4147;
     border-radius: 8px;
-    padding: 8px 12px;
+    padding: 12px;
     color: #dbdee1;
-    font-size: 13px;
-    width: 200px;
+    font-family: 'Consolas', monospace;
+    font-size: 12px;
+    resize: vertical;
     outline: none;
   }
 
-  .search-bar::placeholder { color: #6d6f78; }
+  textarea:focus { border-color: #5865f2; }
 
-  /* ===== LISTA DE MEMBROS ===== */
-  .members-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px 16px 20px;
+  .actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
   }
 
-  .members-list::-webkit-scrollbar { width: 8px; }
-  .members-list::-webkit-scrollbar-track { background: transparent; }
-  .members-list::-webkit-scrollbar-thumb { background: #1a1b1e; border-radius: 4px; }
-  .members-list::-webkit-scrollbar-thumb:hover { background: #111214; }
-
-  .member {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
+  button {
+    background: #5865f2;
+    color: white;
+    border: none;
+    padding: 10px 18px;
     border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
     cursor: pointer;
     transition: 0.15s;
+  }
+
+  button:hover { background: #4752c4; }
+  button.secondary { background: #4e5058; }
+  button.secondary:hover { background: #6d6f78; }
+  button.danger { background: #da373c; }
+  button.danger:hover { background: #a12828; }
+
+  .info-bar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #949ba4;
+  }
+
+  .info-bar .chip {
+    background: #2b2d31;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid #3f4147;
+  }
+
+  .info-bar .chip b { color: #f2f3f5; }
+
+  /* ===== HIERARQUIA ===== */
+  .hierarchy {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cargo {
+    background: #2b2d31;
+    border-radius: 10px;
+    border-left: 4px solid #5865f2;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
     position: relative;
   }
 
-  .member:hover { background: #35373c; }
-
-  .member.selected { background: #404249; }
-
-  .avatar-wrap {
-    position: relative;
-    flex-shrink: 0;
+  .cargo:hover {
+    background: #35373c;
+    transform: translateX(4px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
   }
 
-  .avatar {
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: #5865f2;
+  .cargo .nivel {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #1e1f22;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    color: white;
-    font-size: 15px;
-    overflow: hidden;
-    border: 2px solid transparent;
+    font-size: 14px;
+    color: #fff;
+    flex-shrink: 0;
   }
 
-  .avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-  .status-dot {
-    position: absolute;
-    bottom: -2px; right: -2px;
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    background: #23a55a;
-    border: 3px solid #313338;
-  }
-
-  .status-dot.offline { background: #80848e; }
-  .status-dot.bot { background: #5865f2; }
-  .status-dot.timeout { background: #f23f43; }
-
-  .member-info {
+  .cargo .info {
     flex: 1;
     min-width: 0;
   }
 
-  .member-name {
+  .cargo .nome {
     font-size: 15px;
     font-weight: 600;
     color: #f2f3f5;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     flex-wrap: wrap;
   }
 
-  .member-name .global {
-    color: #949ba4;
-    font-weight: 400;
-    font-size: 13px;
-  }
-
-  .bot-tag {
-    background: #5865f2;
-    color: white;
-    font-size: 10px;
-    padding: 1px 5px;
-    border-radius: 4px;
-    font-weight: 700;
-  }
-
-  .clan-tag {
-    background: #1e1f22;
-    color: #b5bac1;
-    font-size: 10px;
-    padding: 1px 6px;
-    border-radius: 4px;
-    font-weight: 600;
-    border: 1px solid #3f4147;
-  }
-
-  .member-username {
-    font-size: 12px;
-    color: #949ba4;
-    margin-top: 1px;
-  }
-
-  .member-roles {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-    margin-top: 4px;
-  }
-
-  .role-dot {
-    width: 12px; height: 12px;
-    border-radius: 50%;
-    border: 1px solid #1e1f22;
-  }
-
-  .f12-hint {
-    font-size: 10px;
-    color: #6d6f78;
-    background: #1e1f22;
-    padding: 3px 8px;
-    border-radius: 6px;
+  .cargo .id {
     font-family: monospace;
+    font-size: 11px;
+    color: #949ba4;
+    background: #1e1f22;
+    padding: 1px 8px;
+    border-radius: 4px;
+  }
+
+  .cargo .stats {
+    font-size: 12px;
+    color: #b5bac1;
+    margin-top: 4px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .cargo .stats span b { color: #f2f3f5; }
+
+  .cargo .f12-hint {
+    font-family: monospace;
+    font-size: 11px;
+    background: #1e1f22;
+    color: #949ba4;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #3f4147;
     opacity: 0;
     transition: 0.15s;
+    flex-shrink: 0;
   }
 
-  .member:hover .f12-hint { opacity: 1; }
+  .cargo:hover .f12-hint { opacity: 1; color: #79c0ff; border-color: #5865f2; }
+
+  /* Barra proporcional */
+  .cargo .bar {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+  }
 
   /* ===== MODAL F12 ===== */
   .f12-overlay {
@@ -264,7 +220,7 @@
     background: #1e1f22;
     width: 100%;
     max-width: 850px;
-    height: 70vh;
+    height: 72vh;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
     display: flex;
@@ -303,6 +259,9 @@
     font-size: 12px;
     color: #949ba4;
     font-family: monospace;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .f12-close {
@@ -347,7 +306,7 @@
     flex: 1;
     overflow-y: auto;
     padding: 16px;
-    font-family: 'Consolas', 'Monaco', monospace;
+    font-family: 'Consolas', monospace;
     font-size: 13px;
     color: #b5bac1;
   }
@@ -367,17 +326,36 @@
   .f12-content .num { color: #79c0ff; }
   .f12-content .bool { color: #ff7b72; }
   .f12-content .null { color: #ff7b72; font-style: italic; }
-  .f12-content .comment { color: #6e7681; font-style: italic; }
 
-  .perm-badge {
-    display: inline-block;
-    background: #5865f2;
-    color: white;
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 10px;
-    margin: 2px 4px 2px 0;
+  .membro-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: #2b2d31;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    border: 1px solid #3f4147;
   }
+
+  .membro-item .av {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #5865f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .membro-item .av img { width: 100%; height: 100%; object-fit: cover; }
+
+  .membro-item .nm { flex: 1; font-size: 13px; color: #f2f3f5; }
+  .membro-item .nm small { color: #949ba4; font-weight: 400; }
 
   .f12-footer {
     padding: 8px 14px;
@@ -390,95 +368,59 @@
     justify-content: space-between;
   }
 
-  /* ===== AVATAR PREVIEW ===== */
-  .user-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    background: #2b2d31;
-    border-radius: 12px;
-    margin-bottom: 16px;
-    border: 1px solid #3f4147;
-  }
-
-  .user-card .avatar-lg {
-    width: 80px; height: 80px;
-    border-radius: 50%;
-    background: #5865f2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-    font-weight: 700;
-    color: white;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-
-  .user-card .avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
-
-  .user-card-info h3 {
-    color: #f2f3f5;
-    font-size: 20px;
-    margin-bottom: 4px;
-  }
-
-  .user-card-info p {
-    color: #949ba4;
-    font-size: 13px;
-    font-family: monospace;
-  }
-
-  .join-info {
-    margin-top: 8px;
-    font-size: 12px;
-    color: #b5bac1;
-  }
-
   .empty {
     text-align: center;
-    padding: 40px;
+    padding: 60px 20px;
     color: #6d6f78;
-    font-size: 14px;
   }
+
+  .empty .icon { font-size: 48px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
 
 <div class="app">
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <div class="guild-icon active" title="Servidor">🐉</div>
+  <!-- HEADER -->
+  <div class="header">
+    <h1><span class="dot"></span> Gerador de Hierarquia • Discord</h1>
+    <textarea id="jsonInput" placeholder='Cole aqui o JSON do Discord (com "members" e "roles" como IDs)...'></textarea>
+    <div class="actions">
+      <button onclick="processar()">⚡ Gerar Hierarquia</button>
+      <button class="secondary" onclick="colarExemplo()">📋 Exemplo</button>
+      <button class="danger" onclick="limpar()">🗑️ Limpar</button>
+    </div>
   </div>
 
-  <!-- Main -->
-  <div class="main">
-    <div class="main-header">
-      <h2>👥 Membros do Servidor</h2>
-      <span class="count" id="memberCount">0</span>
-      <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Buscar membro...">
+  <!-- INFO -->
+  <div class="info-bar" id="infoBar" style="display:none">
+    <div class="chip">🏰 Guild: <b id="chipGuild">-</b></div>
+    <div class="chip">🎭 Cargos: <b id="chipCargos">0</b></div>
+    <div class="chip">👥 Membros: <b id="chipMembros">0</b></div>
+  </div>
+
+  <!-- HIERARQUIA -->
+  <div class="hierarchy" id="hierarchy">
+    <div class="empty">
+      <div class="icon">📊</div>
+      <div>Cole um JSON acima e clique em <b>Gerar Hierarquia</b></div>
     </div>
-    <div class="members-list" id="membersList"></div>
   </div>
 </div>
 
-<!-- Modal F12 -->
+<!-- MODAL F12 -->
 <div class="f12-overlay" id="f12Overlay">
   <div class="f12-panel">
     <div class="f12-topbar">
       <div class="f12-dots">
         <span class="r"></span><span class="y"></span><span class="g"></span>
       </div>
-      <div class="f12-title" id="f12Title">DevTools — member.json</div>
+      <div class="f12-title" id="f12Title">DevTools</div>
       <button class="f12-close" onclick="fecharF12()">✕</button>
     </div>
 
     <div class="f12-tabs">
-      <button class="f12-tab active" data-tab="json">📄 JSON</button>
-      <button class="f12-tab" data-tab="user">👤 User</button>
-      <button class="f12-tab" data-tab="roles">🎭 Roles</button>
-      <button class="f12-tab" data-tab="join">📥 Join Info</button>
+      <button class="f12-tab active" data-tab="json">📄 Cargo</button>
+      <button class="f12-tab" data-tab="membros">👥 Membros</button>
       <button class="f12-tab" data-tab="raw">🔧 Raw</button>
     </div>
 
@@ -493,407 +435,236 @@
 
 <script>
 // =====================================================
-// 📦 DADOS COLETADOS DO DISCORD (JSON fornecido)
+// ESTADO GLOBAL
 // =====================================================
-const DISCORD_DATA = {
-  "guild_id": "1559767910812225597",
-  "members": [
-    {
-      "member": {
-        "avatar": null, "banner": null, "communication_disabled_until": null,
-        "flags": 0, "joined_at": "2026-10-15T20:23:29.665000+00:00",
-        "nick": null, "pending": false, "premium_since": null,
-        "roles": ["1559997397361238097","1559983581084786868","1559985612608503819","1559991243075752036"],
-        "user": {
-          "id": "1478465323958014130", "username": "paulo_2501_58581",
-          "avatar": "48a5cee9a9c692096bd14c2787f0e45f", "discriminator": "0",
-          "global_name": "Paulo"
-        },
-        "mute": false, "deaf": false
-      },
-      "source_invite_code": "hKUfSdpcM", "join_source_type": 5,
-      "inviter_id": "1498393372291891360",
-      "join_source_application_id": null, "join_source_channel_id": null
-    },
-    {
-      "member": {
-        "avatar": null, "banner": null, "communication_disabled_until": null,
-        "flags": 0, "joined_at": "2026-10-15T18:25:30.141000+00:00",
-        "nick": null, "pending": false, "premium_since": null,
-        "roles": ["1559985612608503819","1559997397361238097","1560357969558904945","1559983581084786868","1560356914783854612"],
-        "user": {
-          "id": "1533965368723243170", "username": "Toshiro Bot",
-          "avatar": "0f90aed03f685d005cb2d4aa34313e95", "discriminator": "9182",
-          "global_name": null, "bot": true
-        },
-        "mute": false, "deaf": false
-      },
-      "source_invite_code": null, "join_source_type": 0,
-      "inviter_id": null, "join_source_application_id": null, "join_source_channel_id": null
-    },
-    {
-      "member": {
-        "avatar": null, "banner": null, "communication_disabled_until": null,
-        "flags": 0, "joined_at": "2026-10-15T18:23:20.683000+00:00",
-        "nick": null, "pending": false, "premium_since": null,
-        "roles": ["1559997397361238097","1559985612608503819","1559983581084786868","1560000943012053113"],
-        "user": {
-          "id": "1503164888023830590", "username": "negaodealagoas_155",
-          "avatar": "4df675fb0160e0e5d5d71d7cb23ac3a0", "discriminator": "0",
-          "global_name": "wsweetiefox"
-        },
-        "mute": false, "deaf": false
-      },
-      "source_invite_code": "hKUfSdpcM", "join_source_type": 5,
-      "inviter_id": "1498393372291891360",
-      "join_source_application_id": null, "join_source_channel_id": null
-    },
-    {
-      "member": {
-        "avatar": null, "banner": null, "communication_disabled_until": null,
-        "flags": 0, "joined_at": "2026-10-15T18:23:15.595000+00:00",
-        "nick": null, "pending": false, "premium_since": null,
-        "roles": ["1559985993522880512","1560000448222593184","1559998005547896964","1559985612608503819","1559997397361238097","1559990812069335186","1559983581084786868"],
-        "user": {
-          "id": "1484326655899205694", "username": "yumihd",
-          "avatar": "26e5262b1da30d04053d6384972f4c41", "discriminator": "0",
-          "global_name": "Yumi"
-        },
-        "mute": false, "deaf": false
-      },
-      "source_invite_code": "hKUfSdpcM", "join_source_type": 5,
-      "inviter_id": "1498393372291891360",
-      "join_source_application_id": null, "join_source_channel_id": null
-    },
-    {
-      "member": {
-        "avatar": null, "banner": null, "communication_disabled_until": null,
-        "flags": 0, "joined_at": "2026-10-15T18:13:05.256000+00:00",
-        "nick": null, "pending": false, "premium_since": null,
-        "roles": ["1559985993522880512","1559998272028803073","1560000768923271168","1559998005547896964","1560000942303350884","1559998983907184680","1559997397361238097","1559990812069335186","1559999207778033724"],
-        "user": {
-          "id": "1510785658468302850", "username": ".shadow88_",
-          "avatar": "dff324bd282ce93f5a11e3806bf753dd", "discriminator": "0",
-          "global_name": ".𝚮.𝚮.𝚮.",
-          "avatar_decoration_data": { "asset": "a_a84650f0a41e2024045308eb265c33ac", "sku_id": "1538978299785781278", "expires_at": 1793059200 },
-          "clan": { "identity_guild_id": "1164979454557290546", "identity_enabled": true, "tag": "FC", "badge": "a3290d71cdc373a5f63598746c8f1476" }
-        },
-        "mute": false, "deaf": false
-      },
-      "source_invite_code": "hKUfSdpcM", "join_source_type": 5,
-      "inviter_id": "1498393372291891360",
-      "join_source_application_id": null, "join_source_channel_id": null
-    },
-    {
-      "member": {
-        "avatar": null, "banner": null,
-        "communication_disabled_until": "2026-10-15T19:27:37.421000+00:00",
-        "flags": 0, "joined_at": "2026-10-15T18:10:50.757000+00:00",
-        "nick": null, "pending": false, "premium_since": null,
-        "roles": ["1559997397361238097","1559998005547896964","1560000943012053113"],
-        "user": {
-          "id": "970037632035876865", "username": "zlyraxz",
-          "avatar": "05fad5d7b17c3da1bb897ad129766719", "discriminator": "0",
-          "global_name": "Snowxz"
-        },
-        "mute": false, "deaf": false
-      },
-      "source_invite_code": "hKUfSdpcM", "join_source_type": 5,
-      "inviter_id": "1498393372291891360",
-      "join_source_application_id": null, "join_source_channel_id": null
-    },
-    {
-      "member": {
-        "avatar": null, "banner": null, "communication_disabled_until": null,
-        "flags": 0, "joined_at": "2026-10-15T18:09:54.586000+00:00",
-        "nick": null, "pending": false, "premium_since": null,
-        "roles": ["1559985993522880512","1559997397361238097","1559990812069335186","1559998005547896964"],
-        "user": {
-          "id": "1070359550957461584", "username": "7.9.3",
-          "avatar": "951a3e46aac1a89f76724e7951649ffd", "discriminator": "0",
-          "global_name": "Angel",
-          "avatar_decoration_data": { "asset": "a_8ffa2ba9bff18e96b76c2e66fd0d7fa3", "sku_id": "1144307957425778779", "expires_at": null },
-          "collectibles": { "nameplate": { "sku_id": "1409898407920668782", "asset": "nameplates/lunar_eclipse/moonlit_charm/", "label": "COLLECTIBLES_LUNAR_ECLIPSE_MOONLIT_CHARM_NP_A11Y", "palette": "cobalt" } },
-          "clan": { "identity_guild_id": "1369705524270071868", "identity_enabled": true, "tag": "゛ໃජ", "badge": "7cf06b1f80be8c382f178b5ad49e1867" }
-        },
-        "mute": false, "deaf": false
-      },
-      "source_invite_code": "hKUfSdpcM", "join_source_type": 5,
-      "inviter_id": "1498393372291891360",
-      "join_source_application_id": null, "join_source_channel_id": null
-    },
-    {
-      "member": {
-        "avatar": null, "banner": null, "communication_disabled_until": null,
-        "flags": 0, "joined_at": "2026-10-14T03:20:49.098000+00:00",
-        "nick": null, "pending": false, "premium_since": null,
-        "roles": ["1559985993522880512","1560000768923271168","1559985380994846850","1560000448222593184","1559999792392835172","1560001545741926562","1560000945159536750","1559997397361238097","1560001451890311218","1560000942194303027","1559983255690805428","1559999295934042132","1559999627904819221","1559984117968408607"],
-        "user": {
-          "id": "1498393372291891360", "username": "g4bs_silva",
-          "avatar": "59024df8c101bfd54a57e81718baeecf", "discriminator": "0",
-          "global_name": "</𝐆𝐛𝟑𝐢𝐧>",
-          "clan": { "identity_guild_id": "1477072953953882214", "identity_enabled": true, "tag": "zuki", "badge": "0625caabbdb25cb8406ebdd64b90a445" }
-        },
-        "mute": false, "deaf": false
-      },
-      "source_invite_code": null, "join_source_type": 0,
-      "inviter_id": null, "join_source_application_id": null, "join_source_channel_id": null
-    }
-  ],
-  "page_result_count": 8,
-  "total_result_count": 8
-};
+let CARGOS = [];      // [{id, membros:[], total}]
+let CARGO_ATUAL = null;
+let ABA_ATUAL = "json";
+let GUILD_ID = "";
 
 // =====================================================
-// 🎨 MAPA DE CORES DE CARGOS (por ID)
+// PROCESSAR JSON
 // =====================================================
-const ROLE_COLORS = {
-  "1559983581084786868": "#5865f2",  // Membro
-  "1559985612608503819": "#faa61a",  // Destaque
-  "1559997397361238097": "#ff3b30",  // Admin
-  "1559991243075752036": "#57f287",  // VIP
-  "1559998005547896964": "#eb459e",  // Booster
-  "1559990812069335186": "#00b0f4",  // Staff
-  "1559985993522880512": "#f47fff",  // Owner
-  "1559985380994846850": "#ff9500",  // Mod
-  "1559999792392835172": "#34c759",  // Helper
-  "1560001545741926562": "#af52de",  // Event
-  "1560000945159536750": "#ffcc00",  // Premium
-  "1560001451890311218": "#00d4aa",  // Parceiro
-  "1560000942194303027": "#ff6b6b",  // Dev
-  "1559983255690805428": "#9b59b6",  // Artista
-  "1559999295934042132": "#e91e63",  // Streamer
-  "1559999627904819221": "#3498db",  // Gamer
-  "1559984117968408607": "#1abc9c",  // Ativo
-  "1560000768923271168": "#e67e22",  // Vip+
-  "1560000448222593184": "#c0392b",  // Elite
-  "1559998272028803073": "#16a085",  // Beta
-  "1560000942303350884": "#8e44ad",  // Tester
-  "1559998983907184680": "#d35400",  // Membro+
-  "1559999207778033724": "#27ae60",  // Novo
-  "1559991243075752036": "#57f287",
-  "1560357969558904945": "#5865f2",
-  "1560356914783854612": "#faa61a",
-  "1560000943012053113": "#eb459e"
-};
+function processar() {
+  const raw = document.getElementById("jsonInput").value.trim();
+  if (!raw) return alert("Cole um JSON primeiro!");
 
-// =====================================================
-// 🚀 RENDERIZAÇÃO
-// =====================================================
-const membersList = document.getElementById("membersList");
-const memberCountEl = document.getElementById("memberCount");
-const searchBar = document.getElementById("searchBar");
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch (e) {
+    return alert("❌ JSON inválido:\n" + e.message);
+  }
 
-let membrosFiltrados = DISCORD_DATA.members;
+  // Aceita tanto {guild_id, members} quanto array direto de membros
+  let membros = [];
+  if (Array.isArray(data)) {
+    membros = data;
+  } else if (data.members && Array.isArray(data.members)) {
+    membros = data.members;
+    GUILD_ID = data.guild_id || "";
+  } else {
+    return alert("❌ JSON não contém 'members'. Cole o JSON de membros do Discord.");
+  }
 
-function getAvatarUrl(user) {
-  if (!user.avatar) return null;
-  const ext = user.avatar.startsWith("a_") ? "gif" : "png";
-  return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${ext}?size=128`;
+  // ===== AGRUPAR MEMBROS POR CARGO =====
+  const mapa = new Map(); // roleId -> {id, membros:[]}
+
+  membros.forEach(item => {
+    const m = item.member || item;
+    const roles = m.roles || [];
+    const user = m.user || {};
+
+    roles.forEach(rid => {
+      if (!mapa.has(rid)) mapa.set(rid, { id: rid, membros: [] });
+      mapa.get(rid).membros.push({ user, member: m });
+    });
+  });
+
+  // Ordenar cargos por quantidade de membros (desc)
+  CARGOS = Array.from(mapa.values()).sort((a, b) => b.membros.length - a.membros.length);
+
+  // Atualizar UI
+  document.getElementById("infoBar").style.display = "flex";
+  document.getElementById("chipGuild").textContent = GUILD_ID || "—";
+  document.getElementById("chipCargos").textContent = CARGOS.length;
+  document.getElementById("chipMembros").textContent = membros.length;
+
+  renderHierarquia();
 }
 
-function getInitials(user) {
-  const name = user.global_name || user.username || "?";
-  return name.replace(/[^\p{L}\p{N}]/gu, "").slice(0, 2).toUpperCase() || "?";
-}
-
-function renderMembers(lista) {
-  membersList.innerHTML = "";
-
-  if (lista.length === 0) {
-    membersList.innerHTML = '<div class="empty">😕 Nenhum membro encontrado</div>';
-    memberCountEl.textContent = "0";
+// =====================================================
+// RENDER HIERARQUIA
+// =====================================================
+function renderHierarquia() {
+  const el = document.getElementById("hierarchy");
+  if (CARGOS.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="icon">😕</div><div>Nenhum cargo encontrado</div></div>';
     return;
   }
 
-  lista.forEach((item, index) => {
-    const m = item.member;
-    const u = m.user;
-    const avatarUrl = getAvatarUrl(u);
-    const initials = getInitials(u);
+  const maxMembros = Math.max(...CARGOS.map(c => c.membros.length));
+  const total = CARGOS.reduce((s, c) => s + c.membros.length, 0);
 
-    // Status
-    let statusClass = "offline";
-    let statusTitle = "Offline";
-    if (u.bot) { statusClass = "bot"; statusTitle = "Bot"; }
-    else if (m.communication_disabled_until) { statusClass = "timeout"; statusTitle = "Silenciado"; }
-    else { statusClass = ""; statusTitle = "Online"; }
+  el.innerHTML = CARGOS.map((cargo, i) => {
+    const cor = corDoCargo(cargo.id);
+    const pct = (cargo.membros.length / maxMembros) * 100;
+    const nivel = CARGOS.length - i;
 
-    // Roles
-    const rolesHtml = m.roles.slice(0, 6).map(rid => {
-      const cor = ROLE_COLORS[rid] || "#99aab5";
-      return `<span class="role-dot" style="background:${cor}" title="${rid}"></span>`;
-    }).join("");
-    const maisRoles = m.roles.length > 6 ? `<span style="font-size:10px;color:#949ba4">+${m.roles.length - 6}</span>` : "";
-
-    const div = document.createElement("div");
-    div.className = "member";
-    div.dataset.index = index;
-    div.onclick = () => abrirF12(item, index);
-    div.innerHTML = `
-      <div class="avatar-wrap">
-        <div class="avatar">
-          ${avatarUrl ? `<img src="${avatarUrl}" alt="${u.username}" onerror="this.parentElement.textContent='${initials}'">` : initials}
+    return `
+      <div class="cargo" style="border-left-color:${cor}" onclick="abrirF12('${cargo.id}')">
+        <div class="bar" style="background:${cor}; width:${Math.max(pct, 3)}%"></div>
+        <div class="nivel" style="background:${cor}">#${nivel}</div>
+        <div class="info">
+          <div class="nome">
+            🎭 Cargo ${cargo.id.slice(-6)}
+            <span class="id">${cargo.id}</span>
+          </div>
+          <div class="stats">
+            <span>👥 <b>${cargo.membros.length}</b> membros</span>
+            <span>📊 <b>${((cargo.membros.length / total) * 100).toFixed(1)}%</b> do servidor</span>
+          </div>
         </div>
-        <div class="status-dot ${statusClass}" title="${statusTitle}"></div>
+        <div class="f12-hint">F12 ↵</div>
       </div>
-      <div class="member-info">
-        <div class="member-name">
-          ${u.global_name || u.username}
-          ${u.bot ? '<span class="bot-tag">BOT</span>' : ""}
-          ${u.clan ? `<span class="clan-tag">${u.clan.tag}</span>` : ""}
-        </div>
-        <div class="member-username">@${u.username}</div>
-        <div class="member-roles">${rolesHtml}${maisRoles}</div>
-      </div>
-      <div class="f12-hint">F12 ↵</div>
     `;
-    membersList.appendChild(div);
-  });
-
-  memberCountEl.textContent = lista.length;
+  }).join("");
 }
 
-// Busca
-searchBar.addEventListener("input", e => {
-  const q = e.target.value.toLowerCase().trim();
-  if (!q) { membrosFiltrados = DISCORD_DATA.members; }
-  else {
-    membrosFiltrados = DISCORD_DATA.members.filter(item => {
-      const u = item.member.user;
-      return (u.username || "").toLowerCase().includes(q)
-        || (u.global_name || "").toLowerCase().includes(q)
-        || (u.id || "").includes(q);
-    });
-  }
-  renderMembers(membrosFiltrados);
-});
-
-renderMembers(membrosFiltrados);
+// =====================================================
+// COR DO CARGO (hash determinístico)
+// =====================================================
+function corDoCargo(id) {
+  const paleta = [
+    "#5865f2", "#57f287", "#fee75c", "#eb459e", "#ed4245",
+    "#faa61a", "#ff9500", "#00b0f4", "#9b59b6", "#1abc9c",
+    "#e91e63", "#3498db", "#e67e22", "#2ecc71", "#f39c12"
+  ];
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return paleta[h % paleta.length];
+}
 
 // =====================================================
-// 🔍 MODAL F12
+// ABRIR F12
 // =====================================================
-let membroAtual = null;
-let abaAtual = "json";
+function abrirF12(roleId) {
+  const cargo = CARGOS.find(c => c.id === roleId);
+  if (!cargo) return;
 
-const overlay = document.getElementById("f12Overlay");
-const f12Title = document.getElementById("f12Title");
-const f12Content = document.getElementById("f12Content");
-const f12Status = document.getElementById("f12Status");
-
-function abrirF12(item, index) {
-  membroAtual = item;
-  const u = item.member.user;
-  f12Title.textContent = `DevTools — member[${index}] @${u.username}`;
-  f12Status.textContent = `Inspecionando: ${u.username}`;
-  overlay.classList.add("active");
-
-  document.querySelectorAll(".member").forEach(el => el.classList.remove("selected"));
-  document.querySelector(`.member[data-index="${index}"]`)?.classList.add("selected");
-
-  renderAba(abaAtual);
+  CARGO_ATUAL = cargo;
+  document.getElementById("f12Title").textContent = `DevTools — role ${roleId}`;
+  document.getElementById("f12Status").textContent = `Cargo: ${roleId} • ${cargo.membros.length} membros`;
+  document.getElementById("f12Overlay").classList.add("active");
+  renderAba(ABA_ATUAL);
 }
 
 function fecharF12() {
-  overlay.classList.remove("active");
-  document.querySelectorAll(".member").forEach(el => el.classList.remove("selected"));
+  document.getElementById("f12Overlay").classList.remove("active");
 }
 
+// =====================================================
+// TABS
+// =====================================================
 document.querySelectorAll(".f12-tab").forEach(tab => {
   tab.onclick = () => {
     document.querySelectorAll(".f12-tab").forEach(t => t.classList.remove("active"));
     tab.classList.add("active");
-    abaAtual = tab.dataset.tab;
-    renderAba(abaAtual);
+    ABA_ATUAL = tab.dataset.tab;
+    renderAba(ABA_ATUAL);
   };
 });
 
-function syntaxHighlight(json) {
-  return json
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
-      let cls = "num";
-      if (/^"/.test(match)) cls = /:$/.test(match) ? "key" : "str";
-      else if (/true|false/.test(match)) cls = "bool";
-      else if (/null/.test(match)) cls = "null";
-      return `<span class="${cls}">${match}</span>`;
-    });
-}
-
+// =====================================================
+// RENDER ABA
+// =====================================================
 function renderAba(tipo) {
-  if (!membroAtual) return;
-  const m = membroAtual.member;
-  const u = m.user;
-  const avatarUrl = getAvatarUrl(u);
-  const initials = getInitials(u);
-
-  const userCard = `
-    <div class="user-card">
-      <div class="avatar-lg">
-        ${avatarUrl ? `<img src="${avatarUrl}" alt="${u.username}" onerror="this.parentElement.textContent='${initials}'">` : initials}
-      </div>
-      <div class="user-card-info">
-        <h3>${u.global_name || u.username} ${u.bot ? '🤖' : ''}</h3>
-        <p>@${u.username} • ID: ${u.id}</p>
-        ${u.clan ? `<p style="color:#b5bac1;margin-top:4px">🏷️ Clan: <b>${u.clan.tag}</b></p>` : ''}
-        <p class="join-info">📥 Entrou em: ${new Date(m.joined_at).toLocaleString('pt-BR')}</p>
-      </div>
-    </div>
-  `;
+  if (!CARGO_ATUAL) return;
+  const el = document.getElementById("f12Content");
+  const cargo = CARGO_ATUAL;
 
   if (tipo === "json") {
-    f12Content.innerHTML = userCard + `<pre>${syntaxHighlight(JSON.stringify(membroAtual, null, 2))}</pre>`;
-  }
-
-  else if (tipo === "user") {
-    f12Content.innerHTML = userCard + `<pre>${syntaxHighlight(JSON.stringify(u, null, 2))}</pre>`;
-  }
-
-  else if (tipo === "roles") {
-    const rolesBadges = m.roles.map(rid => {
-      const cor = ROLE_COLORS[rid] || "#99aab5";
-      return `<span class="perm-badge" style="background:${cor}">${rid}</span>`;
-    }).join("");
-    f12Content.innerHTML = `
-      <div style="color:#6e7681;margin-bottom:12px;">// 🎭 Cargos do membro (${m.roles.length} no total)</div>
-      <div style="margin-bottom:16px;line-height:2;">${rolesBadges}</div>
-      <div style="color:#6e7681;margin-bottom:8px;">// Array bruto</div>
-      <pre>${syntaxHighlight(JSON.stringify(m.roles, null, 2))}</pre>
-    `;
-  }
-
-  else if (tipo === "join") {
-    const joinInfo = {
-      joined_at: m.joined_at,
-      joined_at_formatado: new Date(m.joined_at).toLocaleString('pt-BR'),
-      source_invite_code: membroAtual.source_invite_code,
-      join_source_type: membroAtual.join_source_type,
-      inviter_id: membroAtual.inviter_id,
-      join_source_application_id: membroAtual.join_source_application_id,
-      join_source_channel_id: membroAtual.join_source_channel_id,
-      pending: m.pending,
-      premium_since: m.premium_since,
-      communication_disabled_until: m.communication_disabled_until,
-      mute: m.mute,
-      deaf: m.deaf,
-      flags: m.flags
+    const obj = {
+      role_id: cargo.id,
+      total_membros: cargo.membros.length,
+      membros: cargo.membros.map(m => ({
+        id: m.user.id,
+        username: m.user.username,
+        global_name: m.user.global_name,
+        bot: !!m.user.bot
+      }))
     };
-    f12Content.innerHTML = userCard + `<pre>${syntaxHighlight(JSON.stringify(joinInfo, null, 2))}</pre>`;
+    el.innerHTML = `<pre>${hl(JSON.stringify(obj, null, 2))}</pre>`;
+  }
+
+  else if (tipo === "membros") {
+    el.innerHTML = cargo.membros.map(m => {
+      const u = m.user;
+      const url = avatarUrl(u);
+      const initials = (u.global_name || u.username || "?").replace(/[^\p{L}\p{N}]/gu, "").slice(0, 2).toUpperCase();
+      return `
+        <div class="membro-item">
+          <div class="av">${url ? `<img src="${url}" onerror="this.parentElement.textContent='${initials}'">` : initials}</div>
+          <div class="nm">
+            ${u.global_name || u.username} ${u.bot ? '🤖' : ''}
+            <br><small>@${u.username} • ${u.id}</small>
+          </div>
+        </div>
+      `;
+    }).join("");
   }
 
   else if (tipo === "raw") {
-    f12Content.innerHTML = `<pre>${syntaxHighlight(JSON.stringify(membroAtual, null, 2))}</pre>`;
+    el.innerHTML = `<pre>${hl(JSON.stringify(cargo, null, 2))}</pre>`;
   }
 }
 
-// ESC + clique fora
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape") fecharF12();
-});
+// =====================================================
+// HELPERS
+// =====================================================
+function avatarUrl(u) {
+  if (!u.avatar) return null;
+  const ext = u.avatar.startsWith("a_") ? "gif" : "png";
+  return `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.${ext}?size=64`;
+}
 
-overlay.addEventListener("click", e => {
-  if (e.target === overlay) fecharF12();
+function hl(json) {
+  return json
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m => {
+      let c = "num";
+      if (/^"/.test(m)) c = /:$/.test(m) ? "key" : "str";
+      else if (/true|false/.test(m)) c = "bool";
+      else if (/null/.test(m)) c = "null";
+      return `<span class="${c}">${m}</span>`;
+    });
+}
+
+// =====================================================
+// BOTÕES
+// =====================================================
+function colarExemplo() {
+  document.getElementById("jsonInput").value = JSON.stringify({
+    guild_id: "1559767910812225597",
+    members: [
+      { member: { roles: ["111","222","333"], user: { id: "1", username: "paulo", global_name: "Paulo", avatar: null } } },
+      { member: { roles: ["222","333"], user: { id: "2", username: "yumi", global_name: "Yumi", avatar: null } } },
+      { member: { roles: ["333"], user: { id: "3", username: "bot", global_name: null, bot: true, avatar: null } } }
+    ]
+  }, null, 2);
+}
+
+function limpar() {
+  document.getElementById("jsonInput").value = "";
+  document.getElementById("hierarchy").innerHTML = '<div class="empty"><div class="icon">📊</div><div>Cole um JSON acima e clique em <b>Gerar Hierarquia</b></div></div>';
+  document.getElementById("infoBar").style.display = "none";
+  CARGOS = [];
+}
+
+// ESC + clique fora
+document.addEventListener("keydown", e => { if (e.key === "Escape") fecharF12(); });
+document.getElementById("f12Overlay").addEventListener("click", e => {
+  if (e.target.id === "f12Overlay") fecharF12();
 });
 </script>
 </body>
