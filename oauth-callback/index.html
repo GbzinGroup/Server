@@ -4,110 +4,431 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Verificação — Copie o código</title>
+  <meta name="theme-color" content="#5865f2">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #1e1f22;
+      --card: #2b2d31;
+      --border: #3a3d42;
+      --text: #ffffff;
+      --muted: #b5bac1;
+      --primary: #5865f2;
+      --primary-hover: #4752c4;
+      --success: #57f287;
+      --danger: #f23f43;
+      --warning: #fee75c;
+      --code-bg: #1e1f22;
+      --code-text: #c9cdfb;
+    }
+
     body {
-      background: #1e1f22; color: #fff;
-      font-family: 'Segoe UI', Roboto, sans-serif;
-      display: flex; align-items: center; justify-content: center;
-      min-height: 100vh; padding: 20px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Roboto, -apple-system, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      animation: fadeIn .4s ease;
     }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
     .card {
-      background: #2b2d31; border-radius: 12px; padding: 40px 32px;
-      max-width: 520px; width: 100%; text-align: center;
-      border: 1px solid #3a3d42;
-      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+      background: var(--card);
+      border-radius: 14px;
+      padding: 40px 32px;
+      max-width: 540px;
+      width: 100%;
+      text-align: center;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, .45);
+      position: relative;
+      overflow: hidden;
     }
-    h1 { font-size: 22px; margin-bottom: 8px; }
-    p { color: #b5bac1; font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
+
+    /* Borda superior com gradiente (visual Discord-like) */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #5865f2, #57f287);
+    }
+
+    .icon {
+      font-size: 48px;
+      line-height: 1;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: -.3px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14.5px;
+      line-height: 1.6;
+      margin-bottom: 26px;
+    }
+
+    .subtitle b { color: var(--text); }
+
+    /* ===== Caixa do código ===== */
     .code-box {
-      background: #1e1f22; border: 1px dashed #5865f2;
-      border-radius: 8px; padding: 18px;
-      font-family: 'Consolas', monospace; font-size: 14px;
-      word-break: break-all; color: #c9cdfb;
-      margin-bottom: 16px; min-height: 60px;
-      display: flex; align-items: center; justify-content: center;
+      background: var(--code-bg);
+      border: 1px dashed var(--primary);
+      border-radius: 10px;
+      padding: 18px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 13px;
+      word-break: break-all;
+      color: var(--code-text);
+      margin-bottom: 16px;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color .2s, background .2s;
+      position: relative;
+      user-select: all;
+      cursor: text;
     }
-    .code-box.loading { color: #80848e; font-style: italic; }
+
+    .code-box:hover {
+      border-color: #7983f5;
+      background: #232428;
+    }
+
+    .code-box.loading {
+      color: #80848e;
+      font-style: italic;
+    }
+
+    .code-box.error {
+      border-color: var(--danger);
+      color: var(--danger);
+      font-style: normal;
+    }
+
+    /* ===== Botão ===== */
     button {
-      background: #5865f2; color: #fff; border: none;
-      padding: 12px 24px; border-radius: 8px; cursor: pointer;
-      font-size: 15px; font-weight: 600; width: 100%;
-      transition: background .15s;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 13px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      width: 100%;
+      transition: background .15s, transform .1s;
+      font-family: inherit;
     }
-    button:hover { background: #4752c4; }
-    button:disabled { background: #4e5058; cursor: not-allowed; }
-    button.copiado { background: #57f287; }
+
+    button:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+
+    button:active:not(:disabled) {
+      transform: scale(.98);
+    }
+
+    button:disabled {
+      background: #4e5058;
+      cursor: not-allowed;
+      opacity: .7;
+    }
+
+    button.copiado {
+      background: var(--success);
+      color: #0a1e10;
+    }
+
+    /* ===== Timer ===== */
+    .timer {
+      color: var(--warning);
+      font-size: 13px;
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 18px;
+    }
+
+    .timer b {
+      color: #fff;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer.critico {
+      color: var(--danger);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: .5; }
+    }
+
+    /* ===== Passos ===== */
     .passos {
-      text-align: left; background: #232428;
-      border-radius: 8px; padding: 16px 20px; margin-top: 20px;
-      font-size: 13px; color: #b5bac1;
+      text-align: left;
+      background: #232428;
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin-top: 22px;
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.7;
+      border-left: 3px solid var(--primary);
     }
-    .passos b { color: #fff; }
-    .erro { color: #f23f43; }
+
+    .passos b { color: var(--text); }
+
+    .passos ol {
+      padding-left: 18px;
+      margin-top: 6px;
+    }
+
+    .passos li { margin-bottom: 4px; }
+
+    /* ===== Rodapé ===== */
+    .footer {
+      margin-top: 22px;
+      font-size: 12px;
+      color: #6d6f78;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .footer svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    /* ===== Responsivo ===== */
+    @media (max-width: 480px) {
+      .card { padding: 30px 22px; border-radius: 12px; }
+      h1 { font-size: 20px; }
+      .icon { font-size: 40px; }
+      .code-box { font-size: 11.5px; padding: 14px; }
+      .passos { font-size: 12.5px; padding: 14px 16px; }
+    }
+
+    /* ===== Esconder até estar pronto ===== */
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>✅ Autorizado!</h1>
-    <p>Copie o código abaixo e cole no Discord usando <b>/verificar-codigo</b></p>
+    <span class="icon" id="icon">⏳</span>
+    <h1 id="titulo">Processando...</h1>
+    <p class="subtitle" id="subtitulo">Aguarde um instante.</p>
 
-    <div class="code-box loading" id="codeBox">Carregando...</div>
+    <div id="conteudo" class="hidden">
+      <div class="code-box loading" id="codeBox">Carregando...</div>
 
-    <button id="btnCopiar" disabled>📋 Copiar código</button>
+      <button id="btnCopiar" disabled>📋 Copiar código</button>
 
-    <div class="passos">
-      <b>Como usar:</b><br>
-      1. Copie o código acima<br>
-      2. Volte ao Discord<br>
-      3. Use <b>/verificar-codigo</b> e cole o código<br>
-      4. Pronto, você está verificado ✅
+      <div class="timer" id="timer"></div>
+
+      <div class="passos">
+        <b>Como usar:</b>
+        <ol>
+          <li>Copie o código acima</li>
+          <li>Volte ao Discord</li>
+          <li>Use <b>/verificar-codigo</b> e cole o código</li>
+          <li>Pronto, você está verificado ✅</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="footer">
+      <svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+      <span>Autorização oficial do Discord • Nunca pedimos sua senha</span>
     </div>
   </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    const erro = params.get('error');
-    const box = document.getElementById('codeBox');
-    const btn = document.getElementById('btnCopiar');
+    (function () {
+      'use strict';
 
-    if (erro) {
-      box.classList.remove('loading');
-      box.innerHTML = '<span class="erro">❌ Autorização negada.</span>';
-      return;
-    }
+      /* ============================================================
+       *  REFERÊNCIAS
+       * ========================================================== */
+      const icon       = document.getElementById('icon');
+      const titulo     = document.getElementById('titulo');
+      const subtitulo  = document.getElementById('subtitulo');
+      const conteudo   = document.getElementById('conteudo');
+      const codeBox    = document.getElementById('codeBox');
+      const btnCopiar  = document.getElementById('btnCopiar');
+      const timerEl    = document.getElementById('timer');
 
-    if (!code) {
-      box.classList.remove('loading');
-      box.innerHTML = '<span class="erro">❌ Nenhum código recebido.</span>';
-      return;
-    }
+      /* ============================================================
+       *  CONSTANTES
+       * ========================================================== */
+      const TTL_MS = 10 * 60 * 1000; // 10 minutos (igual ao backend)
 
-    box.classList.remove('loading');
-    box.textContent = code;
-    btn.disabled = false;
-
-    btn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(code);
-        btn.textContent = '✅ Copiado!';
-        btn.classList.add('copiado');
-        setTimeout(() => {
-          btn.textContent = '📋 Copiar código';
-          btn.classList.remove('copiado');
-        }, 2000);
-      } catch {
-        // Fallback para navegadores antigos
-        const ta = document.createElement('textarea');
-        ta.value = code;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        ta.remove();
-        btn.textContent = '✅ Copiado!';
+      /* ============================================================
+       *  ESTADOS VISUAIS
+       * ========================================================== */
+      function estadoErro(mensagem) {
+        icon.textContent = '❌';
+        titulo.textContent = 'Ops!';
+        subtitulo.textContent = mensagem;
+        conteudo.classList.add('hidden');
       }
-    });
+
+      function estadoPronto(code) {
+        icon.textContent = '✅';
+        titulo.textContent = 'Autorizado!';
+        subtitulo.innerHTML = 'Copie o código abaixo e cole no Discord com <b>/verificar-codigo</b>.';
+
+        conteudo.classList.remove('hidden');
+        codeBox.classList.remove('loading');
+        codeBox.textContent = code;
+        btnCopiar.disabled = false;
+
+        iniciarTimer();
+      }
+
+      /* ============================================================
+       *  LÊ PARÂMETROS DA URL
+       * ========================================================== */
+      const params = new URLSearchParams(window.location.search);
+      const code   = params.get('code');
+      const erro   = params.get('error');
+      const erroDesc = params.get('error_description');
+
+      /* ============================================================
+       *  CASOS DE ERRO
+       * ========================================================== */
+      if (erro) {
+        const mensagens = {
+          access_denied: 'Você recusou a autorização. Volte ao Discord e tente novamente.',
+          invalid_scope: 'Escopo inválido. Avise um administrador.',
+          invalid_request: 'Requisição inválida. Volte ao Discord e tente novamente.',
+        };
+        estadoErro(mensagens[erro] || erroDesc || 'Autorização negada.');
+        return;
+      }
+
+      if (!code) {
+        estadoErro(
+          'Nenhum código foi recebido. ' +
+          'Volte ao Discord, use !verificar novamente e clique no botão "Autorizar no Discord".'
+        );
+        return;
+      }
+
+      // Sucesso!
+      estadoPronto(code);
+
+      /* ============================================================
+       *  BOTÃO COPIAR
+       * ========================================================== */
+      btnCopiar.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(code);
+          feedbackCopiado();
+        } catch {
+          // Fallback para navegadores antigos
+          try {
+            const ta = document.createElement('textarea');
+            ta.value = code;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            ta.remove();
+            feedbackCopiado();
+          } catch {
+            btnCopiar.textContent = '❌ Falha ao copiar';
+            setTimeout(restaurarBtn, 2000);
+          }
+        }
+      });
+
+      function feedbackCopiado() {
+        btnCopiar.textContent = '✅ Copiado!';
+        btnCopiar.classList.add('copiado');
+        setTimeout(restaurarBtn, 2000);
+      }
+
+      function restaurarBtn() {
+        btnCopiar.textContent = '📋 Copiar código';
+        btnCopiar.classList.remove('copiado');
+      }
+
+      /* ============================================================
+       *  TIMER DE EXPIRAÇÃO (10 min)
+       * ========================================================== */
+      function iniciarTimer() {
+        const inicio = Date.now();
+
+        function atualizar() {
+          const restante = TTL_MS - (Date.now() - inicio);
+
+          if (restante <= 0) {
+            timerEl.classList.add('critico');
+            timerEl.innerHTML = '⏰ <b>Código expirado!</b> Volte ao Discord e use <b>!verificar</b> novamente.';
+            btnCopiar.disabled = true;
+            codeBox.style.opacity = '.5';
+            return;
+          }
+
+          const min = Math.floor(restante / 60000);
+          const seg = Math.floor((restante % 60000) / 1000);
+          const pad = n => String(n).padStart(2, '0');
+
+          timerEl.innerHTML = `⏱️ O código expira em <b>${pad(min)}:${pad(seg)}</b>`;
+
+          if (restante < 60_000) timerEl.classList.add('critico');
+          else timerEl.classList.remove('critico');
+
+          requestAnimationFrame(() => setTimeout(atualizar, 1000));
+        }
+
+        atualizar();
+      }
+
+      /* ============================================================
+       *  TÍTULO DINÂMICO (feedback visual na aba)
+       * ========================================================== */
+      document.addEventListener('visibilitychange', () => {
+        document.title = document.hidden
+          ? '🔐 Verificação pendente'
+          : 'Verificação — Copie o código';
+      });
+
+      /* ============================================================
+       *  ATALHO: Ctrl+C copia o código direto
+       * ========================================================== */
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'c' && !window.getSelection().toString()) {
+          e.preventDefault();
+          btnCopiar.click();
+        }
+      });
+    })();
   </script>
 </body>
 </html>
