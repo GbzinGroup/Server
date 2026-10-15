@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificação — Copie o código</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1e1f22; color: #fff;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 20px;
+    }
+    .card {
+      background: #2b2d31; border-radius: 12px; padding: 40px 32px;
+      max-width: 520px; width: 100%; text-align: center;
+      border: 1px solid #3a3d42;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    }
+    h1 { font-size: 22px; margin-bottom: 8px; }
+    p { color: #b5bac1; font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
+    .code-box {
+      background: #1e1f22; border: 1px dashed #5865f2;
+      border-radius: 8px; padding: 18px;
+      font-family: 'Consolas', monospace; font-size: 14px;
+      word-break: break-all; color: #c9cdfb;
+      margin-bottom: 16px; min-height: 60px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .code-box.loading { color: #80848e; font-style: italic; }
+    button {
+      background: #5865f2; color: #fff; border: none;
+      padding: 12px 24px; border-radius: 8px; cursor: pointer;
+      font-size: 15px; font-weight: 600; width: 100%;
+      transition: background .15s;
+    }
+    button:hover { background: #4752c4; }
+    button:disabled { background: #4e5058; cursor: not-allowed; }
+    button.copiado { background: #57f287; }
+    .passos {
+      text-align: left; background: #232428;
+      border-radius: 8px; padding: 16px 20px; margin-top: 20px;
+      font-size: 13px; color: #b5bac1;
+    }
+    .passos b { color: #fff; }
+    .erro { color: #f23f43; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>✅ Autorizado!</h1>
+    <p>Copie o código abaixo e cole no Discord usando <b>/verificar-codigo</b></p>
+
+    <div class="code-box loading" id="codeBox">Carregando...</div>
+
+    <button id="btnCopiar" disabled>📋 Copiar código</button>
+
+    <div class="passos">
+      <b>Como usar:</b><br>
+      1. Copie o código acima<br>
+      2. Volte ao Discord<br>
+      3. Use <b>/verificar-codigo</b> e cole o código<br>
+      4. Pronto, você está verificado ✅
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const erro = params.get('error');
+    const box = document.getElementById('codeBox');
+    const btn = document.getElementById('btnCopiar');
+
+    if (erro) {
+      box.classList.remove('loading');
+      box.innerHTML = '<span class="erro">❌ Autorização negada.</span>';
+      return;
+    }
+
+    if (!code) {
+      box.classList.remove('loading');
+      box.innerHTML = '<span class="erro">❌ Nenhum código recebido.</span>';
+      return;
+    }
+
+    box.classList.remove('loading');
+    box.textContent = code;
+    btn.disabled = false;
+
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(code);
+        btn.textContent = '✅ Copiado!';
+        btn.classList.add('copiado');
+        setTimeout(() => {
+          btn.textContent = '📋 Copiar código';
+          btn.classList.remove('copiado');
+        }, 2000);
+      } catch {
+        // Fallback para navegadores antigos
+        const ta = document.createElement('textarea');
+        ta.value = code;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        btn.textContent = '✅ Copiado!';
+      }
+    });
+  </script>
+</body>
+</html>
