@@ -1,470 +1,541 @@
 /**
- * app.js — lógica principal do construtor de formulários.
+ * js/app.js
+ * -------------------------------------------------------------
+ * Bootstrap do app: navegação entre views, modais, toasts,
+ * atalhos globais e ligação entre os módulos.
+ *
+ * Expõe: window.FF.app
+ * -------------------------------------------------------------
  */
 
 (function () {
   'use strict';
 
-  /* =========================================================
-   *  CONSTANTES
-   * =======================================================*/
-  const MAX_PERGUNTAS = 5;
-  const STORAGE_KEY = 'form-builder-rascunho';
-  const TEMA_KEY = 'form-builder-tema';
+  const C = window.FF?.config;
+  const U = window.FF?.utils;
+  const S = window.FF?.storage;
+  const SET = window.FF?.settings;
+  const ED = window.FF?.editor;
+  const DB = window.FF?.dashboard;
+  const EX = window.FF?.exporter;
+  const IM = window.FF?.importer;
+  const TPL = window.FF?.templates;
 
-  const TIPOS = [
-    { valor: 'short',   label: 'Resposta curta' },
-    { valor: 'long',    label: 'Resposta longa' },
-    { valor: 'number',  label: 'Número' },
-    { valor: 'user',    label: 'Usuário (@menção)' },
-    { valor: 'channel', label: 'Canal (#canal)' },
-    { valor: 'role',    label: 'Cargo (@cargo)' },
-  ];
-
-  /* =========================================================
-   *  DOM
-   * =======================================================*/
-  const $ = (id) => document.getElementById(id);
-
-  const tituloEl      = $('titulo');
-  const descricaoEl   = $('descricao');
-  const corEl         = $('cor');
-  const corHexEl      = $('corHex');
-  const categoriaEl   = $('categoria');
-  const dmEl          = $('dm');
-  const anonimoEl     = $('anonimo');
-  const perguntasEl   = $('perguntas');
-  const erroEl        = $('erro');
-  const badgeContador = $('badgeContador');
-  const hintTitulo    = $('hintTitulo');
-
-  const btnAddPergunta = $('btnAddPergunta');
-  const btnAddRapida   = $('btnAddRapida');
-  const btnPreview     = $('btnPreview');
-  const btnLimpar      = $('btnLimpar');
-  const btnGerar       = $('btnGerar');
-
-  const modalResultado = $('modalResultado');
-  const modalPreview   = $('modalPreview');
-  const modalAjuda     = $('modalAjuda');
-
-  const codigoGerado = $('codigoGerado');
-  const previewBody  = $('previewBody');
-
-  let contadorId = 0;
-
-  /* =========================================================
-   *  TEMA
-   * =======================================================*/
-  function aplicarTema(tema) {
-    document.documentElement.setAttribute('data-tema', tema);
-    $('btnTema').textContent = tema === 'claro' ? '☀️' : '🌙';
-    localStorage.setItem(TEMA_KEY, tema);
-  }
-
-  const temaSalvo = localStorage.getItem(TEMA_KEY) || 'escuro';
-  aplicarTema(temaSalvo);
-
-  $('btnTema').addEventListener('click', () => {
-    const atual = document.documentElement.getAttribute('data-tema');
-    aplicarTema(atual === 'claro' ? 'escuro' : 'claro');
-  });
-
-  /* =========================================================
-   *  TEMPLATES
-   * =======================================================*/
-  function renderTemplates() {
-    const lista = $('templatesList');
-    lista.innerHTML = '';
-
-    for (const t of window.TEMPLATES) {
-      const btn = document.createElement('button');
-      btn.className = 'template-btn';
-      btn.innerHTML = `<span class="emoji">${t.emoji}</span> ${t.nome}`;
-      btn.addEventListener('click', () => aplicarTemplate(t));
-      lista.appendChild(btn);
-    }
-  }
-
-  function aplicarTemplate(t) {
-    if (!confirm(`Aplicar template "${t.nome}"? Isso substituirá o conteúdo atual.`)) return;
-
-    const d = t.dados;
-    tituloEl.value = d.titulo || '';
-    descricaoEl.value = d.descricao || '';
-    corEl.value = d.cor || '#5865f2';
-    corHexEl.value = d.cor || '#5865f2';
-    dmEl.checked = d.dm !== false;
-    anonimoEl.checked = !!d.anonimo;
-
-    perguntasEl.innerHTML = '';
-    contadorId = 0;
-
-    (d.perguntas || []).forEach(p => {
-      adicionarPergunta({
-        titulo: p.pergunta,
-        tipo: p.tipo,
-        placeholder: p.placeholder,
-        obrigatoria: p.obrigatoria,
-      });
-    });
-
-    atualizarContador();
-    esconderErro();
-    salvarRascunho();
+  if (!C || !U || !S) {
+    console.error('[app] Dependências base faltando.');
+    return;
   }
 
   /* =========================================================
-   *  PERGUNTAS
+   *  ESTADO GLOBAL
    * =======================================================*/
-  function adicionarPergunta(dados = {}) {
-    if (perguntasEl.children.length >= MAX_PERGUNTAS) {
-      mostrarErro(`Limite de ${MAX_PERGUNTAS} perguntas por formulário (limite do Discord).`);
-      return;
+  let viewAtual = 'dashboard';
+  let confirmarCallback = null;
+
+  /* =========================================================
+   *  INICIALIZAÇÃO
+   * =======================================================*/
+  function init() {
+    // Aplica tema
+    SET?.aplicarTudo?.();
+
+    // Inicializa módulos
+    ED?.init?.();
+    DB?.init?.();
+
+    // Vincula UI global
+    ligarNavegacao();
+    ligarBotoesGlobais();
+    ligarModais();
+    ligarAtalhosGlobais();
+    ligarConfiguracoes();
+
+    // Começa com um formulário novo se não houver nenhum salvo
+    const st = S.estatisticas();
+    if (st.total === 0) {
+      ED?.novoFormulario?.();
     }
 
-    contadorId++;
-    const div = document.createElement('div');
-    div.className = 'pergunta';
-    div.dataset.id = contadorId;
-    div.innerHTML = `
-      <div class="pergunta-header">
-        <div class="pergunta-num">${perguntasEl.children.length + 1}</div>
-        <div class="pergunta-actions">
-          <button class="btn-icon-sm" data-acao="subir" title="Mover para cima">↑</button>
-          <button class="btn-icon-sm" data-acao="descer" title="Mover para baixo">↓</button>
-          <button class="btn-icon-sm remover" data-acao="remover" title="Remover">✕</button>
-        </div>
-      </div>
-
-      <label>Pergunta *</label>
-      <input type="text" class="p-titulo" placeholder="Ex: Qual seu nome?" maxlength="45" value="${escapeAttr(dados.titulo || '')}" />
-
-      <div class="row">
-        <div>
-          <label>Tipo</label>
-          <select class="p-tipo">
-            ${TIPOS.map(t => `<option value="${t.valor}" ${dados.tipo === t.valor ? 'selected' : ''}>${t.label}</option>`).join('')}
-          </select>
-        </div>
-        <div>
-          <label>Placeholder (opcional)</label>
-          <input type="text" class="p-placeholder" placeholder="Ex: Digite aqui..." maxlength="100" value="${escapeAttr(dados.placeholder || '')}" />
-        </div>
-      </div>
-
-      <div class="checkboxes">
-        <input type="checkbox" class="p-obrigatoria" ${dados.obrigatoria ? 'checked' : ''} />
-        <label>Obrigatória</label>
-      </div>
-    `;
-
-    // Ações
-    div.querySelectorAll('[data-acao]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const acao = e.currentTarget.dataset.acao;
-        if (acao === 'remover') {
-          div.remove();
-        } else if (acao === 'subir') {
-          const anterior = div.previousElementSibling;
-          if (anterior) perguntasEl.insertBefore(div, anterior);
-        } else if (acao === 'descer') {
-          const proximo = div.nextElementSibling;
-          if (proximo) perguntasEl.insertBefore(proximo, div);
-        }
-        renumerar();
-        atualizarContador();
-        salvarRascunho();
-      });
-    });
-
-    // Salvar ao digitar
-    div.querySelectorAll('input, select').forEach(el => {
-      el.addEventListener('input', salvarRascunho);
-      el.addEventListener('change', salvarRascunho);
-    });
-
-    perguntasEl.appendChild(div);
-    renumerar();
-    atualizarContador();
-    salvarRascunho();
+    trocarView('dashboard');
+    U.log('FormForge pronto.');
   }
 
-  function renumerar() {
-    [...perguntasEl.children].forEach((p, i) => {
-      p.querySelector('.pergunta-num').textContent = i + 1;
+  /* =========================================================
+   *  NAVEGAÇÃO
+   * =======================================================*/
+  function ligarNavegacao() {
+    U.$$('[data-view]').forEach(btn => {
+      U.on(btn, 'click', () => trocarView(btn.dataset.view));
     });
   }
 
-  function atualizarContador() {
-    const n = perguntasEl.children.length;
-    badgeContador.textContent = `${n} / ${MAX_PERGUNTAS}`;
-    badgeContador.classList.toggle('completo', n === MAX_PERGUNTAS);
+  function trocarView(nome) {
+    viewAtual = nome;
+
+    U.$$('.view').forEach(v => {
+      v.hidden = v.dataset.view !== nome;
+    });
+
+    U.$$('.nav-btn').forEach(b => {
+      const ativo = b.dataset.view === nome;
+      b.classList.toggle('active', ativo);
+      if (ativo) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
+    });
+
+    if (nome === 'dashboard') DB?.render?.();
+    if (nome === 'editor')    ED?.renderizarPreview?.();
+    if (nome === 'templates') renderizarTemplates();
   }
 
   /* =========================================================
-   *  ERROS
+   *  BOTÕES GLOBAIS
    * =======================================================*/
-  function mostrarErro(msg) {
-    erroEl.textContent = '❌ ' + msg;
-    erroEl.style.display = 'block';
-    erroEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  function ligarBotoesGlobais() {
+    U.on(U.$('#btn-tema'), 'click', toggleTema);
+    U.on(U.$('#btn-ajuda'), 'click', () => abrirModal('modal-ajuda'));
+    U.on(U.$('#btn-config'), 'click', () => abrirModal('modal-config'));
+
+    U.on(U.$('#btn-novo'), 'click', novoFormulario);
+    U.on(U.$('#btn-novo-vazio'), 'click', novoFormulario);
+    U.on(U.$('#btn-importar'), 'click', () => abrirModal('modal-importar'));
+    U.on(U.$('#btn-voltar'), 'click', () => trocarView('dashboard'));
   }
 
-  function esconderErro() {
-    erroEl.style.display = 'none';
+  function novoFormulario() {
+    ED?.novoFormulario?.();
+    trocarView('editor');
   }
 
-  /* =========================================================
-   *  GERAÇÃO
-   * =======================================================*/
-  function coletarDados() {
-    const titulo = tituloEl.value.trim();
-    const descricao = descricaoEl.value.trim();
-    const cor = corHexEl.value.trim() || corEl.value;
-    const dm = dmEl.checked;
-    const anonimo = anonimoEl.checked;
-    const categoria = categoriaEl.value;
-
-    if (!titulo) throw new Error('O título é obrigatório.');
-    if (titulo.length < 3) throw new Error('O título precisa ter ao menos 3 caracteres.');
-
-    const perguntas = [];
-    for (const el of perguntasEl.children) {
-      const t = el.querySelector('.p-titulo').value.trim();
-      const tipo = el.querySelector('.p-tipo').value;
-      const placeholder = el.querySelector('.p-placeholder').value.trim();
-      const obrigatoria = el.querySelector('.p-obrigatoria').checked;
-
-      if (!t) throw new Error('Todas as perguntas precisam de um título.');
-      if (t.length > 45) throw new Error('Pergunta muito longa (máx. 45 caracteres).');
-
-      perguntas.push({ pergunta: t, tipo, placeholder, obrigatoria });
-    }
-
-    if (perguntas.length === 0) throw new Error('Adicione pelo menos 1 pergunta.');
-
-    return {
-      titulo,
-      descricao,
-      cor,
-      dm,
-      anonimo,
-      categoria,
-      perguntas,
-      _versao: 1,
-      _geradoEm: new Date().toISOString(),
-    };
+  function toggleTema() {
+    const escuro = SET?.get('temaEscuro') ?? true;
+    SET?.set?.('temaEscuro', !escuro);
+    atualizarIconeTema();
   }
 
-  function gerar() {
-    esconderErro();
-
-    let dados;
-    try {
-      dados = coletarDados();
-    } catch (e) {
-      return mostrarErro(e.message);
-    }
-
-    const json = JSON.stringify(dados);
-
-    codigoGerado.textContent = json;
-    abrirModal(modalResultado);
-    salvarRascunho();
-  }
-
-  /* =========================================================
-   *  PREVIEW
-   * =======================================================*/
-  function preview() {
-    esconderErro();
-
-    let dados;
-    try {
-      dados = coletarDados();
-    } catch (e) {
-      return mostrarErro(e.message);
-    }
-
-    previewBody.innerHTML = window.gerarPreviewHTML(dados);
-    abrirModal(modalPreview);
+  function atualizarIconeTema() {
+    const btn = U.$('#btn-tema');
+    if (!btn) return;
+    const escuro = SET?.get('temaEscuro') ?? true;
+    btn.textContent = escuro ? '🌙' : '☀️';
   }
 
   /* =========================================================
    *  MODAIS
    * =======================================================*/
-  function abrirModal(modal) { modal.classList.add('aberto'); }
-  function fecharModal(modal) { modal.classList.remove('aberto'); }
+  function abrirModal(id) {
+    const m = document.getElementById(id);
+    if (!m) return;
+    m.hidden = false;
+    m.classList.add('aberto');
 
-  document.querySelectorAll('.modal').forEach(m => {
-    m.addEventListener('click', (e) => {
+    // Foco no primeiro botão
+    setTimeout(() => {
+      const foco = m.querySelector('button, [href], input, select, textarea');
+      foco?.focus();
+    }, 50);
+
+    // Fecha com Esc (só uma vez por modal)
+    const fecharComEsc = (e) => {
+      if (e.key === 'Escape') {
+        fecharModal(m);
+        document.removeEventListener('keydown', fecharComEsc);
+      }
+    };
+    document.addEventListener('keydown', fecharComEsc);
+
+    // Clique no backdrop
+    U.on(m, 'click', (e) => {
       if (e.target === m) fecharModal(m);
+    }, { once: true });
+  }
+
+  function fecharModal(m) {
+    if (typeof m === 'string') m = document.getElementById(m);
+    if (!m) return;
+    m.classList.add('hidden');
+    m.classList.remove('aberto');
+    m.hidden = true;
+  }
+
+  function ligarModais() {
+    // Botões com [data-fechar-modal]
+    U.$$('[data-fechar-modal]').forEach(btn => {
+      U.on(btn, 'click', () => {
+        const modal = btn.closest('.modal');
+        if (modal) fecharModal(modal);
+      });
     });
-  });
 
-  $('btnFecharModal').addEventListener('click', () => fecharModal(modalResultado));
-  $('btnFecharPreview').addEventListener('click', () => fecharModal(modalPreview));
-  $('btnFecharAjuda').addEventListener('click', () => fecharModal(modalAjuda));
-  $('btnAjuda').addEventListener('click', () => abrirModal(modalAjuda));
+    // Abas de exportar
+    U.$$('[data-export-tab]').forEach(btn => {
+      U.on(btn, 'click', () => {
+        U.$$('[data-export-tab]').forEach(b => {
+          const ativo = b.dataset.exportTab === btn.dataset.exportTab;
+          b.classList.toggle('active', ativo);
+          b.setAttribute('aria-selected', String(ativo));
+        });
+        atualizarExportPreview(btn.dataset.exportTab);
+      });
+    });
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      document.querySelectorAll('.modal.aberto').forEach(fecharModal);
-    }
-  });
+    // Abas de importar
+    U.$$('[data-import-tab]').forEach(btn => {
+      U.on(btn, 'click', () => {
+        U.$$('[data-import-tab]').forEach(b => {
+          const ativo = b.dataset.importTab === btn.dataset.importTab;
+          b.classList.toggle('active', ativo);
+          b.setAttribute('aria-selected', String(ativo));
+        });
+        U.$$('[data-import-panel]').forEach(p => {
+          p.hidden = p.dataset.importPanel !== btn.dataset.importTab;
+        });
+      });
+    });
 
-  /* =========================================================
-   *  COPIAR / BAIXAR
-   * =======================================================*/
-  $('btnCopiar').addEventListener('click', async () => {
-    const txt = codigoGerado.textContent;
-    try {
-      await navigator.clipboard.writeText(txt);
-      const btn = $('btnCopiar');
-      btn.textContent = '✅ Copiado!';
-      setTimeout(() => btn.textContent = '📋 Copiar JSON', 2000);
-    } catch {
-      alert('Não consegui copiar. Selecione o texto manualmente.');
-    }
-  });
+    // Botão copiar JSON
+    U.on(U.$('#btn-copiar-json'), 'click', async () => {
+      const code = U.$('#export-code');
+      const txt = code?.textContent ?? '';
+      const ok = await U.copiarTexto(txt);
+      toast(ok ? 'JSON copiado!' : 'Falha ao copiar', ok ? 'sucesso' : 'erro');
+    });
 
-  $('btnBaixar').addEventListener('click', () => {
-    const txt = codigoGerado.textContent;
-    const blob = new Blob([txt], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'formulario.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  });
+    // Botão baixar JSON
+    U.on(U.$('#btn-baixar-json'), 'click', () => {
+      const code = U.$('#export-code');
+      const txt = code?.textContent ?? '';
+      const form = ED?.obterFormularioAtual?.();
+      const nome = form ? EX?.gerarNomeArquivo?.(form) ?? 'formulario.json' : 'formulario.json';
+      U.baixarArquivo(nome, txt);
+      toast('Download iniciado.', 'sucesso');
+    });
 
-  /* =========================================================
-   *  RASCUNHO (localStorage)
-   * =======================================================*/
-  function salvarRascunho() {
-    try {
-      const dados = {
-        titulo: tituloEl.value,
-        descricao: descricaoEl.value,
-        cor: corHexEl.value,
-        dm: dmEl.checked,
-        anonimo: anonimoEl.checked,
-        categoria: categoriaEl.value,
-        perguntas: [...perguntasEl.children].map(el => ({
-          titulo: el.querySelector('.p-titulo').value,
-          tipo: el.querySelector('.p-tipo').value,
-          placeholder: el.querySelector('.p-placeholder').value,
-          obrigatoria: el.querySelector('.p-obrigatoria').checked,
-        })),
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
-    } catch { /* ignora */ }
-  }
+    // Botão confirmar import
+    U.on(U.$('#btn-confirmar-import'), 'click', executarImport);
 
-  function carregarRascunho() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return false;
+    // Modal de confirmar
+    U.on(U.$('#confirm-ok'), 'click', () => {
+      if (typeof confirmarCallback === 'function') confirmarCallback();
+      confirmarCallback = null;
+      fecharModal('modal-confirmar');
+    });
 
-      const d = JSON.parse(raw);
-      tituloEl.value = d.titulo || '';
-      descricaoEl.value = d.descricao || '';
-      corEl.value = d.cor || '#5865f2';
-      corHexEl.value = d.cor || '#5865f2';
-      dmEl.checked = d.dm !== false;
-      anonimoEl.checked = !!d.anonimo;
-      categoriaEl.value = d.categoria || '';
-
-      (d.perguntas || []).forEach(p => adicionarPergunta(p));
-      return true;
-    } catch {
-      return false;
-    }
+    U.on(U.$('#confirm-cancelar'), 'click', () => {
+      confirmarCallback = null;
+      fecharModal('modal-confirmar');
+    });
   }
 
   /* =========================================================
-   *  EVENTOS
+   *  IMPORTAR
    * =======================================================*/
-  btnAddPergunta.addEventListener('click', () => adicionarPergunta());
+  async function executarImport() {
+    const erros = U.$('#import-erros');
+    if (erros) { erros.hidden = true; erros.textContent = ''; }
 
-  btnAddRapida.addEventListener('click', () => {
-    const perguntasRapidas = [
-      { titulo: 'Nome completo', tipo: 'short' },
-      { titulo: 'Idade', tipo: 'number' },
-      { titulo: 'Motivo do contato', tipo: 'long' },
-    ];
-    const p = perguntasRapidas[perguntasEl.children.length % perguntasRapidas.length];
-    adicionarPergunta({ ...p, obrigatoria: true });
-  });
+    const abaAtiva = U.$('[data-import-tab].active')?.dataset.importTab ?? 'colar';
 
-  btnPreview.addEventListener('click', preview);
-  btnGerar.addEventListener('click', gerar);
+    let resultado;
 
-  btnLimpar.addEventListener('click', () => {
-    if (!confirm('Apagar tudo? Esta ação não pode ser desfeita.')) return;
-    tituloEl.value = '';
-    descricaoEl.value = '';
-    corEl.value = '#5865f2';
-    corHexEl.value = '#5865f2';
-    dmEl.checked = true;
-    anonimoEl.checked = false;
-    categoriaEl.value = '';
-    perguntasEl.innerHTML = '';
-    contadorId = 0;
-    esconderErro();
-    atualizarContador();
-    localStorage.removeItem(STORAGE_KEY);
-  });
-
-  // Sincroniza cor
-  corEl.addEventListener('input', () => { corHexEl.value = corEl.value; salvarRascunho(); });
-  corHexEl.addEventListener('input', () => {
-    if (/^#[0-9a-fA-F]{6}$/.test(corHexEl.value)) corEl.value = corHexEl.value;
-    salvarRascunho();
-  });
-
-  // Validação ao vivo do título
-  tituloEl.addEventListener('input', () => {
-    const v = tituloEl.value.trim();
-    if (!v) { hintTitulo.textContent = ''; hintTitulo.className = 'hint'; return; }
-    if (v.length < 3) {
-      hintTitulo.textContent = 'Muito curto (mín. 3 caracteres)';
-      hintTitulo.className = 'hint erro';
+    if (abaAtiva === 'arquivo') {
+      const file = U.$('#import-file')?.files?.[0];
+      if (!file) {
+        mostrarErrosImport(['Selecione um arquivo.']);
+        return;
+      }
+      resultado = await IM.importarDeArquivo(file);
     } else {
-      hintTitulo.textContent = `${v.length}/100 caracteres`;
-      hintTitulo.className = 'hint ok';
+      const texto = U.$('#import-json')?.value ?? '';
+      if (!texto.trim()) {
+        mostrarErrosImport(['Cole um JSON.']);
+        return;
+      }
+      resultado = IM.importarDeTexto(texto);
     }
-    salvarRascunho();
+
+    if (!resultado.ok) {
+      mostrarErrosImport(resultado.erros);
+      return;
+    }
+
+    // Aplica no editor
+    ED?.carregarFormulario?.(resultado.dados);
+    fecharModal('modal-importar');
+    trocarView('editor');
+    toast('Formulário importado!', 'sucesso');
+  }
+
+  function mostrarErrosImport(lista) {
+    const el = U.$('#import-erros');
+    if (!el) return;
+    el.textContent = '❌ ' + lista.join('\n❌ ');
+    el.hidden = false;
+  }
+
+  /* =========================================================
+   *  EXPORTAR
+   * =======================================================*/
+  function abrirModalExportar() {
+    const form = ED?.obterFormularioAtual?.();
+    if (!form) return;
+
+    // Abre na aba legado por padrão
+    const abaPadrao = 'legado';
+    U.$$('[data-export-tab]').forEach(b => {
+      const ativo = b.dataset.exportTab === abaPadrao;
+      b.classList.toggle('active', ativo);
+      b.setAttribute('aria-selected', String(ativo));
+    });
+
+    atualizarExportPreview(abaPadrao);
+    abrirModal('modal-exportar');
+  }
+
+  function atualizarExportPreview(formato) {
+    const form = ED?.obterFormularioAtual?.();
+    const code = U.$('#export-code');
+    const erros = U.$('#export-erros');
+    const hint = U.$('#export-hint');
+
+    if (erros) { erros.hidden = true; erros.textContent = ''; }
+
+    const r = EX.gerarJson(form, formato);
+
+    if (!r.ok) {
+      if (erros) { erros.textContent = '❌ ' + r.erro; erros.hidden = false; }
+      if (code) code.textContent = '';
+      return;
+    }
+
+    if (code) code.textContent = r.json;
+
+    if (hint) {
+      if (formato === 'legado') {
+        hint.textContent = 'Formato que o bot atual entende. Cole no comando /form importar.';
+      } else if (formato === 'completo') {
+        hint.textContent = 'Inclui tipos extras (não suportados pelo bot). Use para backup.';
+      } else {
+        hint.textContent = 'Formato legado sem indentação. Mais compacto.';
+      }
+    }
+  }
+
+  /* =========================================================
+   *  TEMPLATES
+   * =======================================================*/
+  let catAtual = 'todos';
+
+  function renderizarTemplates() {
+    const grid = U.$('#templates-grid');
+    const cats = U.$('#templates-cats');
+    const busca = U.$('#busca-template');
+
+    if (!grid || !TPL) return;
+
+    // Categorias
+    if (cats && !cats.children.length) {
+      for (const c of TPL.categorias()) {
+        const b = U.criar('button', {
+          type: 'button',
+          role: 'tab',
+          text: `${c.emoji} ${c.label}`,
+          dataset: { cat: c.id },
+        });
+        if (c.id === catAtual) b.classList.add('active');
+        U.on(b, 'click', () => {
+          catAtual = c.id;
+          U.$$('[data-cat]', cats).forEach(x => x.classList.toggle('active', x.dataset.cat === catAtual));
+          renderizarTemplates();
+        });
+        cats.appendChild(b);
+      }
+    }
+
+    // Lista
+    const query = busca?.value ?? '';
+    let lista = query ? TPL.buscar(query) : TPL.listar(catAtual);
+
+    U.limpar(grid);
+    for (const t of lista) {
+      const card = U.criar('button', {
+        type: 'button',
+        class: 'template-card',
+        dataset: { id: t.id },
+      });
+
+      card.innerHTML = `
+        <span class="template-emoji">${t.emoji}</span>
+        <span class="template-nome">${U.escapeHtml(t.nome)}</span>
+        <span class="template-desc">${U.escapeHtml(t.desc)}</span>
+        <span class="template-meta">📝 ${t.dados.perguntas?.length ?? 0} perguntas</span>
+      `;
+
+      U.on(card, 'click', () => {
+        confirmar(
+          `Aplicar o template "${t.nome}"? O conteúdo atual será substituído.`,
+          () => {
+            const dados = TPL.aplicar(t.id);
+            ED?.aplicarTemplate?.(dados);
+            trocarView('editor');
+            toast('Template aplicado!', 'sucesso');
+          }
+        );
+      });
+
+      grid.appendChild(card);
+    }
+
+    // Busca
+    if (busca && !busca.dataset.ligado) {
+      busca.dataset.ligado = '1';
+      U.on(busca, 'input', U.debounce(renderizarTemplates, 200));
+    }
+  }
+
+  /* =========================================================
+   *  CONFIRMAÇÃO
+   * =======================================================*/
+  function confirmar(mensagem, callback) {
+    confirmarCallback = callback;
+    const msg = U.$('#confirm-msg');
+    if (msg) msg.textContent = mensagem;
+    abrirModal('modal-confirmar');
+  }
+
+  /* =========================================================
+   *  TOASTS
+   * =======================================================*/
+  function toast(mensagem, tipo = 'info', duracao = 3000) {
+    const container = U.$('#toasts');
+    if (!container) return;
+
+    const t = U.criar('div', { class: `toast ${tipo}`, role: 'status' });
+    t.innerHTML = `<span>${U.escapeHtml(mensagem)}</span>`;
+    container.appendChild(t);
+
+    setTimeout(() => {
+      t.style.transition = 'opacity .3s, transform .3s';
+      t.style.opacity = '0';
+      t.style.transform = 'translateX(20px)';
+      setTimeout(() => t.remove(), 300);
+    }, duracao);
+  }
+
+  /* =========================================================
+   *  CONFIGURAÇÕES
+   * =======================================================*/
+  function ligarConfiguracoes() {
+    const cfgTema = U.$('#cfg-tema-escuro');
+    const cfgDensidade = U.$('#cfg-densidade');
+    const cfgAnim = U.$('#cfg-animacoes');
+    const cfgAutosave = U.$('#cfg-autosave');
+    const cfgConfirmar = U.$('#cfg-confirmar-excluir');
+
+    if (cfgTema) {
+      cfgTema.checked = SET.get('temaEscuro');
+      U.on(cfgTema, 'change', () => {
+        SET.set('temaEscuro', cfgTema.checked);
+        atualizarIconeTema();
+      });
+    }
+
+    if (cfgDensidade) {
+      cfgDensidade.checked = SET.get('densidadeCompacta');
+      U.on(cfgDensidade, 'change', () => SET.set('densidadeCompacta', cfgDensidade.checked));
+    }
+
+    if (cfgAnim) {
+      cfgAnim.checked = SET.get('animacoes');
+      U.on(cfgAnim, 'change', () => SET.set('animacoes', cfgAnim.checked));
+    }
+
+    if (cfgAutosave) {
+      cfgAutosave.checked = SET.get('autosave');
+      U.on(cfgAutosave, 'change', () => SET.set('autosave', cfgAutosave.checked));
+    }
+
+    if (cfgConfirmar) {
+      cfgConfirmar.checked = SET.get('confirmarExcluir');
+      U.on(cfgConfirmar, 'change', () => SET.set('confirmarExcluir', cfgConfirmar.checked));
+    }
+
+    // Backup
+    U.on(U.$('#btn-export-backup'), 'click', () => {
+      const backup = S.exportarBackup();
+      U.baixarArquivo(
+        `formforge-backup-${new Date().toISOString().slice(0, 10)}.json`,
+        JSON.stringify(backup, null, 2)
+      );
+      toast('Backup exportado.', 'sucesso');
+    });
+
+    U.on(U.$('#btn-import-backup'), 'click', () => {
+      U.$('#input-backup')?.click();
+    });
+
+    U.on(U.$('#input-backup'), 'change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const texto = await U.lerArquivoComoTexto(file);
+        const dados = JSON.parse(texto);
+        const r = S.importarBackup(dados, { substituir: false });
+        toast(`${r.formularios} formulário(s) importado(s).`, 'sucesso');
+        DB?.render?.();
+      } catch (err) {
+        toast('Falha ao importar backup: ' + err.message, 'erro');
+      }
+      e.target.value = '';
+    });
+
+    U.on(U.$('#btn-limpar-tudo'), 'click', () => {
+      confirmar('Apagar TODOS os dados? Essa ação não pode ser desfeita.', () => {
+        S.limparTudo();
+        ED?.novoFormulario?.();
+        DB?.render?.();
+        fecharModal('modal-config');
+        toast('Dados apagados.', 'sucesso');
+      });
+    });
+  }
+
+  /* =========================================================
+   *  ATALHOS GLOBAIS
+   * =======================================================*/
+  function ligarAtalhosGlobais() {
+    document.addEventListener('keydown', (e) => {
+      // ? abre ajuda (fora de inputs)
+      const alvo = e.target;
+      const digitando = alvo && (alvo.tagName === 'INPUT' || alvo.tagName === 'TEXTAREA' || alvo.isContentEditable);
+      if (!digitando && e.key === '?') {
+        e.preventDefault();
+        abrirModal('modal-ajuda');
+      }
+    });
+  }
+
+  /* =========================================================
+   *  BOOT
+   * =======================================================*/
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  /* =========================================================
+   *  EXPORTS
+   * =======================================================*/
+  window.FF = window.FF || {};
+  window.FF.app = Object.freeze({
+    trocarView,
+    abrirModal,
+    fecharModal,
+    abrirModalExportar,
+    atualizarExportPreview,
+    confirmar,
+    toast,
+    novoFormulario,
   });
-
-  [descricaoEl, dmEl, anonimoEl, categoriaEl].forEach(el =>
-    el.addEventListener('input', salvarRascunho)
-  );
-
-  /* =========================================================
-   *  HELPERS
-   * =======================================================*/
-  function escapeAttr(s) {
-    return String(s ?? '')
-      .replace(/&/g, '&amp;')
-      .replace(/"/g, '&quot;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-  }
-
-  /* =========================================================
-   *  INICIALIZAÇÃO
-   * =======================================================*/
-  renderTemplates();
-
-  if (!carregarRascunho()) {
-    adicionarPergunta({ titulo: 'Nome', tipo: 'short', obrigatoria: true });
-    adicionarPergunta({ titulo: 'Motivo', tipo: 'long', obrigatoria: true });
-  }
-
-  atualizarContador();
-  console.log('%c📋 Construtor de Formulários pronto!', 'color:#5865f2;font-weight:bold;font-size:14px');
-  console.log('Dica: use window.TEMPLATES para ver os templates disponíveis.');
 })();
