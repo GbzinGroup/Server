@@ -3,561 +3,204 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Criador de Formulários — Discord</title>
+  <title>Construtor de Formulários — Discord</title>
   <meta name="theme-color" content="#5865f2">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #1e1f22;
-      --card: #2b2d31;
-      --card2: #232428;
-      --border: #3a3d42;
-      --text: #fff;
-      --muted: #b5bac1;
-      --primary: #5865f2;
-      --primary-hover: #4752c4;
-      --success: #57f287;
-      --danger: #ed4245;
-      --warning: #fee75c;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Segoe UI', Roboto, -apple-system, sans-serif;
-      min-height: 100vh;
-      padding: 30px 20px;
-    }
-
-    .container { max-width: 800px; margin: 0 auto; }
-
-    h1 {
-      font-size: 30px;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .subtitle {
-      color: var(--muted);
-      font-size: 15px;
-      margin-bottom: 32px;
-      line-height: 1.6;
-    }
-
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 28px;
-      margin-bottom: 20px;
-      border: 1px solid var(--border);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, #5865f2, #57f287);
-      opacity: .8;
-    }
-
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .5px;
-      margin-bottom: 8px;
-    }
-
-    input[type="text"],
-    textarea,
-    select {
-      width: 100%;
-      background: var(--card2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 14px;
-      color: var(--text);
-      font-size: 14.5px;
-      font-family: inherit;
-      margin-bottom: 18px;
-      transition: border-color .15s;
-    }
-
-    input[type="text"]:focus,
-    textarea:focus,
-    select:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    textarea { resize: vertical; min-height: 80px; }
-
-    .pergunta {
-      background: var(--card2);
-      border-radius: 10px;
-      padding: 18px;
-      margin-bottom: 14px;
-      border: 1px solid var(--border);
-      position: relative;
-    }
-
-    .pergunta-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .pergunta-num {
-      background: var(--primary);
-      color: #fff;
-      width: 26px; height: 26px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .btn-remover {
-      background: transparent;
-      border: none;
-      color: var(--danger);
-      font-size: 18px;
-      cursor: pointer;
-      padding: 4px 10px;
-      border-radius: 6px;
-      transition: background .15s;
-    }
-
-    .btn-remover:hover { background: rgba(237, 66, 69, .15); }
-
-    .row { display: flex; gap: 12px; }
-    .row > * { flex: 1; }
-
-    .checkboxes {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 18px;
-      font-size: 14px;
-      color: var(--muted);
-    }
-
-    .checkboxes input { width: auto; margin: 0; }
-
-    button {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      padding: 14px 24px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 600;
-      font-family: inherit;
-      transition: background .15s, transform .1s;
-    }
-
-    button:hover { background: var(--primary-hover); }
-    button:active { transform: scale(.98); }
-    button:disabled { background: #4e5058; cursor: not-allowed; opacity: .6; }
-
-    button.secundario {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-    }
-    button.secundario:hover { background: var(--card2); color: var(--text); }
-
-    button.danger {
-      background: var(--danger);
-    }
-    button.danger:hover { background: #c93b3e; }
-
-    .acoes {
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
-    }
-
-    .acoes button { flex: 1; }
-
-    /* ===== Resultado ===== */
-    #resultado {
-      display: none;
-      text-align: center;
-    }
-
-    #resultado .codigo {
-      background: var(--card2);
-      border: 2px dashed var(--primary);
-      border-radius: 12px;
-      padding: 24px;
-      font-family: 'Consolas', monospace;
-      font-size: 26px;
-      font-weight: 700;
-      color: #c9cdfb;
-      letter-spacing: 3px;
-      margin: 20px 0;
-      user-select: all;
-    }
-
-    #resultado .passos {
-      text-align: left;
-      background: var(--card2);
-      border-radius: 10px;
-      padding: 20px 24px;
-      margin-top: 20px;
-      font-size: 14px;
-      line-height: 1.8;
-      color: var(--muted);
-      border-left: 3px solid var(--primary);
-    }
-
-    #resultado .passos b { color: var(--text); }
-    #resultado .passos ol { padding-left: 20px; }
-
-    .erro {
-      background: rgba(237, 66, 69, .15);
-      border-left: 3px solid var(--danger);
-      color: #f8a0a2;
-      padding: 12px 18px;
-      border-radius: 8px;
-      margin-top: 12px;
-      display: none;
-      font-size: 14px;
-    }
-
-    .footer {
-      text-align: center;
-      color: #6d6f78;
-      font-size: 12px;
-      margin-top: 30px;
-    }
-
-    @media (max-width: 600px) {
-      h1 { font-size: 24px; }
-      .card { padding: 20px; }
-      .row { flex-direction: column; }
-    }
-  </style>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>📋 Criador de Formulários</h1>
-    <p class="subtitle">
-      Monte seu formulário abaixo. Ao gerar, você receberá um <b>código</b> para usar no Discord com <b>/form enviar</b>.
-    </p>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <h1>
+        <span class="logo">📋</span>
+        Construtor de Formulários
+      </h1>
+      <div class="topbar-actions">
+        <button class="btn-icon" id="btnTema" title="Alternar tema">🌙</button>
+        <button class="btn-icon" id="btnAjuda" title="Ajuda">❓</button>
+      </div>
+    </div>
+  </header>
 
-    <!-- ============================= -->
-    <!-- FORMULÁRIO DE CRIAÇÃO         -->
-    <!-- ============================= -->
-    <div id="criador">
-      <div class="card">
-        <label for="titulo">Título do formulário</label>
+  <main class="container">
+    <!-- ============ SIDEBAR DE TEMPLATES ============ -->
+    <aside class="sidebar">
+      <h2>Templates</h2>
+      <div id="templatesList" class="templates-list"></div>
+    </aside>
+
+    <!-- ============ ÁREA PRINCIPAL ============ -->
+    <section class="main">
+
+      <!-- AVISO -->
+      <div class="aviso">
+        ⚠️ <b>Importante:</b> este site funciona <b>offline</b>. No final, você copia o JSON e cola no Discord com <code>/form importar</code>.
+      </div>
+
+      <!-- ============ PASSO 1: INFO BÁSICAS ============ -->
+      <div class="card" data-step="1">
+        <div class="card-header">
+          <span class="step">1</span>
+          <h3>Informações básicas</h3>
+        </div>
+
+        <label for="titulo">Título do formulário *</label>
         <input type="text" id="titulo" placeholder="Ex: Registro de Staff" maxlength="100" />
+        <span class="hint" id="hintTitulo"></span>
 
         <label for="descricao">Descrição (opcional)</label>
         <textarea id="descricao" placeholder="Ex: Preencha com atenção. Respostas incorretas serão ignoradas." maxlength="500"></textarea>
 
-        <label for="cor">Cor do embed</label>
-        <select id="cor">
-          <option value="#5865f2">🔵 Azul (padrão)</option>
-          <option value="#57f287">🟢 Verde</option>
-          <option value="#fee75c">🟡 Amarelo</option>
-          <option value="#ed4245">🔴 Vermelho</option>
-          <option value="#eb459e">🩷 Rosa</option>
-          <option value="#9b59b6">🟣 Roxo</option>
-        </select>
+        <div class="row">
+          <div>
+            <label for="cor">Cor do embed</label>
+            <div class="cor-picker">
+              <input type="color" id="cor" value="#5865f2" />
+              <input type="text" id="corHex" value="#5865f2" maxlength="7" />
+            </div>
+          </div>
+          <div>
+            <label for="categoria">Categoria (opcional)</label>
+            <select id="categoria">
+              <option value="">— Nenhuma —</option>
+              <option value="registro">📝 Registro</option>
+              <option value="suporte">🆘 Suporte</option>
+              <option value="denuncia">🚨 Denúncia</option>
+              <option value="sugestao">💡 Sugestão</option>
+              <option value="evento">🎉 Evento</option>
+              <option value="outro">📦 Outro</option>
+            </select>
+          </div>
+        </div>
 
         <div class="checkboxes">
           <input type="checkbox" id="dm" checked />
-          <label for="dm" style="text-transform:none; letter-spacing:0; font-weight:400; margin:0; cursor:pointer;">
-            Enviar cópia das respostas por DM para quem respondeu
-          </label>
+          <label for="dm">Enviar cópia das respostas por DM</label>
+        </div>
+
+        <div class="checkboxes">
+          <input type="checkbox" id="anonimo" />
+          <label for="anonimo">Ocultar nome do respondente no log público</label>
         </div>
       </div>
 
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-          <label style="margin:0;">Perguntas</label>
-          <button class="secundario" id="btnAdd" style="padding:8px 16px; font-size:13px;">+ Adicionar</button>
+      <!-- ============ PASSO 2: PERGUNTAS ============ -->
+      <div class="card" data-step="2">
+        <div class="card-header">
+          <span class="step">2</span>
+          <h3>Perguntas</h3>
+          <span class="badge" id="badgeContador">0 / 5</span>
         </div>
 
-        <div id="perguntas"></div>
+        <div id="perguntas" class="perguntas"></div>
+
         <div class="erro" id="erro"></div>
 
-        <div class="acoes">
-          <button class="secundario" id="btnLimpar">Limpar tudo</button>
-          <button id="btnGerar">✨ Gerar código</button>
+        <div class="card-actions">
+          <button class="btn secundario" id="btnAddPergunta">+ Adicionar pergunta</button>
+          <button class="btn secundario" id="btnAddRapida">⚡ Adicionar rápida</button>
         </div>
       </div>
-    </div>
 
-    <!-- ============================= -->
-    <!-- RESULTADO                     -->
-    <!-- ============================= -->
-    <div class="card" id="resultado">
-      <h1 style="justify-content:center;">✅ Formulário criado!</h1>
-      <p class="subtitle" style="text-align:center; margin-top:8px;">
-        Guarde este código com segurança. Ele é a chave do seu formulário.
-      </p>
+      <!-- ============ PASSO 3: AÇÕES ============ -->
+      <div class="card" data-step="3">
+        <div class="card-header">
+          <span class="step">3</span>
+          <h3>Gerar código</h3>
+        </div>
 
-      <div class="codigo" id="codigoGerado">—</div>
-
-      <button id="btnCopiar" style="width:100%;">📋 Copiar código</button>
-
-      <div class="passos">
-        <b>Como usar no Discord:</b>
-        <ol>
-          <li>Vá até o servidor onde quer publicar</li>
-          <li>Use <b>/form enviar</b> com o código e o canal</li>
-          <li>Pronto! O formulário aparecerá no canal</li>
-        </ol>
+        <div class="card-actions">
+          <button class="btn secundario" id="btnPreview">👁️ Pré-visualizar</button>
+          <button class="btn secundario" id="btnLimpar">🗑️ Limpar tudo</button>
+          <button class="btn primario" id="btnGerar">✨ Gerar JSON</button>
+        </div>
       </div>
 
-      <div class="acoes">
-        <button class="secundario" id="btnVoltar">← Criar outro</button>
-      </div>
-    </div>
+    </section>
+  </main>
 
-    <div class="footer">
-      🔒 Os dados são salvos localmente no seu navegador.<br>
-      Compartilhe o código apenas com quem você confia.
+  <!-- ============ MODAL DE RESULTADO ============ -->
+  <div class="modal" id="modalResultado">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>✅ Formulário pronto!</h2>
+        <button class="btn-fechar" id="btnFecharModal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-info">
+          Copie o texto abaixo e cole no Discord usando <code>/form importar</code>.
+        </p>
+
+        <div class="code-box" id="codigoGerado"></div>
+
+        <div class="modal-actions">
+          <button class="btn primario" id="btnCopiar">📋 Copiar JSON</button>
+          <button class="btn secundario" id="btnBaixar">💾 Baixar .json</button>
+        </div>
+
+        <div class="passos">
+          <b>Como usar no Discord:</b>
+          <ol>
+            <li>Copie o JSON acima</li>
+            <li>Vá até o servidor e use <code>/form importar</code></li>
+            <li>Cole o JSON na opção <code>json</code></li>
+            <li>O bot vai gerar um código tipo <code>FORM-A3X9K2</code></li>
+            <li>Use <code>/form enviar code:FORM-A3X9K2 canal:#formularios</code></li>
+          </ol>
+        </div>
+      </div>
     </div>
   </div>
 
-  <script>
-    (function () {
-      'use strict';
+  <!-- ============ MODAL DE PREVIEW ============ -->
+  <div class="modal" id="modalPreview">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>👁️ Pré-visualização</h2>
+        <button class="btn-fechar" id="btnFecharPreview">✕</button>
+      </div>
+      <div class="modal-body" id="previewBody"></div>
+    </div>
+  </div>
 
-      /* ============================================================
-       *  CONSTANTES
-       * ========================================================== */
-      const TIPOS = [
-        { valor: 'short',  label: 'Resposta curta (1 linha)' },
-        { valor: 'long',   label: 'Resposta longa (parágrafo)' },
-        { valor: 'number', label: 'Número' },
-        { valor: 'user',   label: 'Usuário (@menção)' },
-        { valor: 'channel',label: 'Canal (#canal)' },
-        { valor: 'role',   label: 'Cargo (@cargo)' },
-      ];
+  <!-- ============ MODAL DE AJUDA ============ -->
+  <div class="modal" id="modalAjuda">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>❓ Ajuda</h2>
+        <button class="btn-fechar" id="btnFecharAjuda">✕</button>
+      </div>
+      <div class="modal-body">
+        <h3>Como funciona?</h3>
+        <p>Este site cria formulários que o bot do Discord consegue ler. O fluxo é:</p>
+        <ol class="ajuda-lista">
+          <li>Preencha o formulário aqui</li>
+          <li>Clique em <b>Gerar JSON</b></li>
+          <li>Copie o texto e cole no Discord com <code>/form importar</code></li>
+          <li>Use <code>/form enviar</code> para publicar</li>
+        </ol>
 
-      const MAX_PERGUNTAS = 5; // limite do Discord por modal
+        <h3>Tipos de pergunta</h3>
+        <ul class="ajuda-lista">
+          <li><b>Curta</b>: uma linha (até 200 chars)</li>
+          <li><b>Longa</b>: parágrafo (até 1000 chars)</li>
+          <li><b>Número</b>: aceita apenas números</li>
+          <li><b>Usuário/Canal/Cargo</b>: mostra dica de menção</li>
+        </ul>
 
-      /* ============================================================
-       *  DOM
-       * ========================================================== */
-      const perguntasEl = document.getElementById('perguntas');
-      const btnAdd      = document.getElementById('btnAdd');
-      const btnLimpar   = document.getElementById('btnLimpar');
-      const btnGerar    = document.getElementById('btnGerar');
-      const btnCopiar   = document.getElementById('btnCopiar');
-      const btnVoltar   = document.getElementById('btnVoltar');
-      const criadorEl   = document.getElementById('criador');
-      const resultadoEl = document.getElementById('resultado');
-      const codigoEl    = document.getElementById('codigoGerado');
-      const erroEl      = document.getElementById('erro');
+        <h3>Limites do Discord</h3>
+        <ul class="ajuda-lista">
+          <li>Máximo <b>5 perguntas</b> por formulário</li>
+          <li>Pergunta: até <b>45 caracteres</b></li>
+          <li>Placeholder: até <b>100 caracteres</b></li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
-      let contador = 0;
-
-      /* ============================================================
-       *  PERGUNTAS
-       * ========================================================== */
-      function criarPergunta() {
-        if (perguntasEl.children.length >= MAX_PERGUNTAS) {
-          mostrarErro(`Limite de ${MAX_PERGUNTAS} perguntas por formulário (limitação do Discord).`);
-          return;
-        }
-
-        contador++;
-        const div = document.createElement('div');
-        div.className = 'pergunta';
-        div.dataset.id = contador;
-        div.innerHTML = `
-          <div class="pergunta-header">
-            <div class="pergunta-num">${perguntasEl.children.length + 1}</div>
-            <button class="btn-remover" title="Remover">✕</button>
-          </div>
-
-          <input type="text" class="p-titulo" placeholder="Pergunta (ex: Qual seu nome?)" maxlength="45" />
-
-          <div class="row">
-            <select class="p-tipo">
-              ${TIPOS.map(t => `<option value="${t.valor}">${t.label}</option>`).join('')}
-            </select>
-            <input type="text" class="p-placeholder" placeholder="Placeholder (opcional)" maxlength="100" />
-          </div>
-
-          <div class="checkboxes" style="margin-bottom:0;">
-            <input type="checkbox" class="p-obrigatoria" />
-            <label style="text-transform:none; letter-spacing:0; font-weight:400; margin:0; cursor:pointer; font-size:13px;">
-              Obrigatória
-            </label>
-          </div>
-        `;
-
-        div.querySelector('.btn-remover').addEventListener('click', () => {
-          div.remove();
-          renumerar();
-        });
-
-        perguntasEl.appendChild(div);
-        renumerar();
-      }
-
-      function renumerar() {
-        [...perguntasEl.children].forEach((p, i) => {
-          p.querySelector('.pergunta-num').textContent = i + 1;
-        });
-      }
-
-      /* ============================================================
-       *  AÇÕES
-       * ========================================================== */
-      btnAdd.addEventListener('click', criarPergunta);
-
-      btnLimpar.addEventListener('click', () => {
-        if (!confirm('Apagar todas as perguntas?')) return;
-        perguntasEl.innerHTML = '';
-        document.getElementById('titulo').value = '';
-        document.getElementById('descricao').value = '';
-        document.getElementById('dm').checked = true;
-        contador = 0;
-        esconderErro();
-      });
-
-      btnGerar.addEventListener('click', gerar);
-
-      btnCopiar.addEventListener('click', async () => {
-        const codigo = codigoEl.textContent;
-        try {
-          await navigator.clipboard.writeText(codigo);
-          btnCopiar.textContent = '✅ Copiado!';
-          btnCopiar.style.background = 'var(--success)';
-          setTimeout(() => {
-            btnCopiar.textContent = '📋 Copiar código';
-            btnCopiar.style.background = '';
-          }, 2000);
-        } catch {
-          alert('Não consegui copiar. Selecione o código e copie manualmente.');
-        }
-      });
-
-      btnVoltar.addEventListener('click', () => {
-        resultadoEl.style.display = 'none';
-        criadorEl.style.display = 'block';
-      });
-
-      /* ============================================================
-       *  GERAR CÓDIGO
-       * ========================================================== */
-      function gerar() {
-        esconderErro();
-
-        const titulo = document.getElementById('titulo').value.trim();
-        const descricao = document.getElementById('descricao').value.trim();
-        const cor = document.getElementById('cor').value;
-        const dm = document.getElementById('dm').checked;
-
-        if (!titulo) return mostrarErro('O título é obrigatório.');
-        if (titulo.length < 3) return mostrarErro('O título precisa ter ao menos 3 caracteres.');
-
-        const perguntas = [];
-        for (const el of perguntasEl.children) {
-          const t = el.querySelector('.p-titulo').value.trim();
-          const tipo = el.querySelector('.p-tipo').value;
-          const placeholder = el.querySelector('.p-placeholder').value.trim();
-          const obrigatoria = el.querySelector('.p-obrigatoria').checked;
-
-          if (!t) return mostrarErro('Todas as perguntas precisam de um título.');
-          if (t.length > 45) return mostrarErro('Pergunta muito longa (máx. 45 caracteres).');
-
-          perguntas.push({ pergunta: t, tipo, placeholder, obrigatoria });
-        }
-
-        if (perguntas.length === 0) return mostrarErro('Adicione pelo menos 1 pergunta.');
-
-        const formulario = {
-          titulo,
-          descricao,
-          cor,
-          dm,
-          perguntas,
-          criadoEm: Date.now(),
-        };
-
-        const codigo = gerarCodigo();
-
-        // Salva no localStorage (com aviso sobre limitações)
-        try {
-          const db = JSON.parse(localStorage.getItem('formularios') || '{}');
-          db[codigo] = formulario;
-          localStorage.setItem('formularios', JSON.stringify(db));
-        } catch {
-          // Se localStorage estiver cheio, avisa mas continua
-          console.warn('Não consegui salvar no localStorage.');
-        }
-
-        // Mostra o resultado
-        codigoEl.textContent = codigo;
-        criadorEl.style.display = 'none';
-        resultadoEl.style.display = 'block';
-
-        // Exporta como JSON para o usuário copiar se quiser
-        window.formularioGerado = { codigo, formulario };
-      }
-
-      function gerarCodigo() {
-        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sem I, O, 0, 1
-        let codigo = 'FORM-';
-        for (let i = 0; i < 6; i++) {
-          codigo += chars[Math.floor(Math.random() * chars.length)];
-        }
-        return codigo;
-      }
-
-      /* ============================================================
-       *  ERROS
-       * ========================================================== */
-      function mostrarErro(msg) {
-        erroEl.textContent = '❌ ' + msg;
-        erroEl.style.display = 'block';
-        erroEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-
-      function esconderErro() {
-        erroEl.style.display = 'none';
-      }
-
-      /* ============================================================
-       *  INICIALIZA COM 2 PERGUNTAS
-       * ========================================================== */
-      criarPergunta();
-      criarPergunta();
-
-      /* ============================================================
-       *  BOTÃO EXPORTAR JSON (para devs colarem no bot)
-       * ========================================================== */
-      window.exportarJSON = () => {
-        if (!window.formularioGerado) {
-          console.warn('Nenhum formulário gerado ainda.');
-          return;
-        }
-        console.log(JSON.stringify(window.formularioGerado, null, 2));
-        return JSON.stringify(window.formularioGerado);
-      };
-    })();
-  </script>
+  <script src="templates.js"></script>
+  <script src="preview.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
