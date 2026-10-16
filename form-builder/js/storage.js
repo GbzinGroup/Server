@@ -84,4 +84,95 @@
   }
 
   function remover(id) {
-    if (!id
+    if (!id) return false;
+    const lista = listar();
+    const nova = lista.filter(f => f.id !== id);
+    if (nova.length === lista.length) return false;
+    return salvarLista(nova);
+  }
+
+  function duplicar(id) {
+    const orig = obter(id);
+    if (!orig) return null;
+    return salvar({
+      ...U.clonar(orig),
+      id: U.uuid(),
+      titulo: `${orig.titulo || 'Sem título'} (cópia)`,
+      favorito: false,
+      criadoEm: U.agora(),
+    });
+  }
+
+  function favoritar(id, valor) {
+    const lista = listar();
+    const idx = lista.findIndex(f => f.id === id);
+    if (idx < 0) return null;
+    lista[idx].favorito = valor !== undefined ? !!valor : !lista[idx].favorito;
+    lista[idx].atualizadoEm = U.agora();
+    salvarLista(lista);
+    return lista[idx];
+  }
+
+  function salvarRascunho(form) { return gravarChave(CHAVES.RASCUNHO, { ...form, _rascunho: true, _salvoEm: U.agora() }); }
+  function lerRascunho() { const r = lerChave(CHAVES.RASCUNHO, null); return r && typeof r === 'object' ? r : null; }
+  function limparRascunho() { return removerChave(CHAVES.RASCUNHO); }
+
+  function exportarBackup() {
+    return {
+      _backup: true,
+      _versao: LIMITES.BACKUP_VERSAO,
+      _exportadoEm: new Date().toISOString(),
+      _appVersao: C.VERSAO_APP,
+      schema: SCHEMA_ATUAL,
+      formularios: listar(),
+      rascunho: lerRascunho(),
+      config: lerChave(CHAVES.CONFIG, null),
+    };
+  }
+
+  function importarBackup(dados, opcoes = {}) {
+    const { substituir = false } = opcoes;
+    if (!dados || typeof dados !== 'object') throw new Error('Backup inválido.');
+    if (!dados._backup) throw new Error('Esse arquivo não é um backup do FormForge.');
+    const novos = Array.isArray(dados.formularios) ? dados.formularios : [];
+    if (substituir) {
+      salvarLista(novos);
+    } else {
+      const lista = listar();
+      const ids = new Set(lista.map(f => f.id));
+      for (const f of novos) {
+        if (!f?.id) continue;
+        if (ids.has(f.id)) lista.unshift({ ...f, id: U.uuid(), titulo: `${f.titulo} (restaurado)` });
+        else lista.unshift(f);
+      }
+      salvarLista(lista);
+    }
+    if (dados.rascunho) gravarChave(CHAVES.RASCUNHO, dados.rascunho);
+    if (dados.config) gravarChave(CHAVES.CONFIG, dados.config);
+    return { formularios: novos.length };
+  }
+
+  function limparTudo() {
+    Object.values(CHAVES).forEach(removerChave);
+  }
+
+  function estatisticas() {
+    const lista = listar();
+    const favoritos = lista.filter(f => f.favorito).length;
+    const rascunho = lerRascunho();
+    const ultima = lista.reduce((a, f) => Math.max(a, f.atualizadoEm ?? 0), 0);
+    return { total: lista.length, favoritos, temRascunho: !!rascunho, ultimaEdicao: ultima || null };
+  }
+
+  function init() { try { migrar(); } catch (err) { U.erro('[storage] Migração:', err.message); } }
+
+  window.FF = window.FF || {};
+  window.FF.storage = Object.freeze({
+    init, listar, obter, salvar, remover, duplicar, favoritar, salvarLista,
+    salvarRascunho, lerRascunho, limparRascunho,
+    exportarBackup, importarBackup,
+    limparTudo, estatisticas,
+  });
+
+  init();
+})();
