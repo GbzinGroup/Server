@@ -48,3 +48,16 @@
     else obj = paraFormatoLegado(form);
 
     try { return { ok: true, json: JSON.stringify(obj, null, espacos), objeto: obj }; }
+    catch (err) { return { ok: false, erro: err.message }; }
+  }
+
+  async function copiar(json) { return await U.copiarTexto(json); }
+  function baixar(json, nome = 'formulario.json') { try { U.baixarArquivo(nome, json); return true; } catch { return false; } }
+  function gerarNomeArquivo(form) { return `${U.slug(form.titulo || 'formulario') || 'formulario'}.json`; }
+
+  window.FF = window.FF || {};
+  window.FF.exporter = Object.freeze({
+    gerarJson, copiar, baixar, gerarNomeArquivo,
+    paraFormatoLegado, paraFormatoCompleto,
+  });
+})();
