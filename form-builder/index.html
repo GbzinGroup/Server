@@ -1,66 +1,299 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-tema="escuro">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Construtor de Formulários — Discord</title>
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="FormForge — Crie formulários profissionais para o Discord, offline, sem cadastro.">
   <meta name="theme-color" content="#5865f2">
+
+  <title>FormForge — Construtor de Formulários para Discord</title>
+
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
-  <link rel="stylesheet" href="style.css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/editor.css">
+  <link rel="stylesheet" href="css/preview.css">
 </head>
+
 <body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <h1>
-        <span class="logo">📋</span>
-        Construtor de Formulários
-      </h1>
-      <div class="topbar-actions">
-        <button class="btn-icon" id="btnTema" title="Alternar tema">🌙</button>
-        <button class="btn-icon" id="btnAjuda" title="Ajuda">❓</button>
+
+<!-- ============================================================
+     TOPBAR
+     ============================================================ -->
+<header class="topbar" role="banner">
+  <div class="topbar-inner">
+
+    <div class="topbar-brand">
+      <span class="brand-icon" aria-hidden="true">📋</span>
+      <div>
+        <h1 class="brand-title">FormForge</h1>
+        <span class="brand-sub">Formulários para Discord</span>
       </div>
     </div>
-  </header>
 
-  <main class="container">
-    <!-- ============ SIDEBAR DE TEMPLATES ============ -->
-    <aside class="sidebar">
-      <h2>Templates</h2>
-      <div id="templatesList" class="templates-list"></div>
-    </aside>
+    <nav class="topbar-nav" aria-label="Navegação principal">
+      <button class="nav-btn active" data-view="dashboard" aria-current="page">
+        <span aria-hidden="true">🏠</span>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-btn" data-view="editor">
+        <span aria-hidden="true">✏️</span>
+        <span>Editor</span>
+      </button>
+      <button class="nav-btn" data-view="templates">
+        <span aria-hidden="true">📚</span>
+        <span>Templates</span>
+      </button>
+    </nav>
 
-    <!-- ============ ÁREA PRINCIPAL ============ -->
-    <section class="main">
+    <div class="topbar-actions">
+      <button class="icon-btn" id="btn-ajuda" aria-label="Abrir ajuda" title="Ajuda (?)">
+        <span aria-hidden="true">❓</span>
+      </button>
+      <button class="icon-btn" id="btn-config" aria-label="Abrir configurações" title="Configurações">
+        <span aria-hidden="true">⚙️</span>
+      </button>
+      <button class="icon-btn" id="btn-tema" aria-label="Alternar tema" title="Tema (T)">
+        <span aria-hidden="true">🌙</span>
+      </button>
+    </div>
 
-      <!-- AVISO -->
-      <div class="aviso">
-        ⚠️ <b>Importante:</b> este site funciona <b>offline</b>. No final, você copia o JSON e cola no Discord com <code>/form importar</code>.
+  </div>
+</header>
+
+<!-- ============================================================
+     VIEW: DASHBOARD
+     ============================================================ -->
+<main class="view" id="view-dashboard" data-view="dashboard">
+
+  <div class="dashboard-header">
+    <div>
+      <h2 class="view-title">Seus formulários</h2>
+      <p class="view-sub">Gerencie, edite e exporte formulários para o Discord.</p>
+    </div>
+
+    <div class="dashboard-actions">
+      <button class="btn btn-ghost" id="btn-importar">
+        <span aria-hidden="true">📥</span>
+        <span>Importar JSON</span>
+      </button>
+      <button class="btn btn-primary" id="btn-novo">
+        <span aria-hidden="true">➕</span>
+        <span>Novo formulário</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Estatísticas -->
+  <section class="stats-grid" aria-label="Estatísticas gerais">
+    <div class="stat-card">
+      <span class="stat-icon" aria-hidden="true">📋</span>
+      <div>
+        <span class="stat-value" id="stat-total">0</span>
+        <span class="stat-label">Formulários</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon" aria-hidden="true">⭐</span>
+      <div>
+        <span class="stat-value" id="stat-favoritos">0</span>
+        <span class="stat-label">Favoritos</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon" aria-hidden="true">📝</span>
+      <div>
+        <span class="stat-value" id="stat-rascunho">—</span>
+        <span class="stat-label">Rascunho ativo</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon" aria-hidden="true">🕐</span>
+      <div>
+        <span class="stat-value" id="stat-ultima">—</span>
+        <span class="stat-label">Última edição</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filtros -->
+  <section class="toolbar" aria-label="Filtros e busca">
+    <div class="search-wrap">
+      <span aria-hidden="true">🔍</span>
+      <input
+        type="search"
+        id="busca"
+        placeholder="Buscar formulário..."
+        aria-label="Buscar formulário pelo nome"
+        autocomplete="off"
+      >
+    </div>
+
+    <select id="filtro-categoria" aria-label="Filtrar por categoria">
+      <option value="">Todas as categorias</option>
+      <option value="registro">📝 Registro</option>
+      <option value="suporte">🆘 Suporte</option>
+      <option value="denuncia">🚨 Denúncia</option>
+      <option value="sugestao">💡 Sugestão</option>
+      <option value="evento">🎉 Evento</option>
+      <option value="minecraft">⛏️ Minecraft</option>
+      <option value="projeto">💼 Projeto</option>
+      <option value="outro">📦 Outro</option>
+    </select>
+
+    <select id="ordenacao" aria-label="Ordenar formulários">
+      <option value="recentes">Mais recentes</option>
+      <option value="antigos">Mais antigos</option>
+      <option value="az">Nome (A-Z)</option>
+      <option value="za">Nome (Z-A)</option>
+    </select>
+
+    <button
+      class="icon-btn"
+      id="btn-favoritos"
+      aria-label="Mostrar somente favoritos"
+      aria-pressed="false"
+      title="Mostrar somente favoritos"
+    >
+      <span aria-hidden="true">⭐</span>
+    </button>
+
+    <div class="view-toggle" role="group" aria-label="Modo de visualização">
+      <button
+        class="active"
+        data-view-mode="grid"
+        aria-label="Visualização em grade"
+        aria-pressed="true"
+        title="Grade"
+      >▦</button>
+      <button
+        data-view-mode="list"
+        aria-label="Visualização em lista"
+        aria-pressed="false"
+        title="Lista"
+      >☰</button>
+    </div>
+  </section>
+
+  <!-- Lista de formulários -->
+  <section
+    id="lista-formularios"
+    class="forms-grid"
+    aria-live="polite"
+    aria-label="Lista de formulários salvos"
+  ></section>
+
+  <!-- Estado vazio -->
+  <section id="estado-vazio" class="empty-state" hidden>
+    <span class="empty-icon" aria-hidden="true">📭</span>
+    <h3>Nenhum formulário por aqui</h3>
+    <p>Crie seu primeiro formulário do zero ou comece com um template pronto.</p>
+    <div class="empty-actions">
+      <button class="btn btn-primary" id="btn-novo-vazio">
+        <span aria-hidden="true">➕</span>
+        <span>Criar formulário</span>
+      </button>
+      <button class="btn btn-ghost" data-view="templates">
+        <span aria-hidden="true">📚</span>
+        <span>Ver templates</span>
+      </button>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============================================================
+     VIEW: EDITOR
+     ============================================================ -->
+<main class="view" id="view-editor" data-view="editor" hidden>
+
+  <div class="editor-layout">
+
+    <!-- ============ COLUNA PRINCIPAL ============ -->
+    <section class="editor-col editor-col--main" aria-label="Editor de formulário">
+
+      <div class="editor-top">
+        <button class="btn btn-ghost btn-sm" id="btn-voltar" aria-label="Voltar ao dashboard">
+          <span aria-hidden="true">←</span>
+          <span>Voltar</span>
+        </button>
+
+        <span
+          class="editor-status"
+          id="editor-status"
+          role="status"
+          aria-live="polite"
+        >Salvo</span>
+
+        <div class="editor-top-actions">
+          <button
+            class="btn btn-ghost btn-sm"
+            id="btn-undo"
+            title="Desfazer (Ctrl+Z)"
+            disabled
+            aria-label="Desfazer última alteração"
+          >
+            <span aria-hidden="true">↶</span>
+            <span>Desfazer</span>
+          </button>
+          <button
+            class="btn btn-ghost btn-sm"
+            id="btn-redo"
+            title="Refazer (Ctrl+Shift+Z)"
+            disabled
+            aria-label="Refazer última alteração"
+          >
+            <span aria-hidden="true">↷</span>
+            <span>Refazer</span>
+          </button>
+          <button
+            class="btn btn-primary btn-sm"
+            id="btn-exportar"
+            title="Exportar (Ctrl+E)"
+          >
+            <span aria-hidden="true">📤</span>
+            <span>Exportar</span>
+          </button>
+        </div>
       </div>
 
-      <!-- ============ PASSO 1: INFO BÁSICAS ============ -->
-      <div class="card" data-step="1">
-        <div class="card-header">
-          <span class="step">1</span>
+      <!-- Info básicas -->
+      <div class="card">
+        <header class="card-header">
           <h3>Informações básicas</h3>
-        </div>
+          <span class="badge">obrigatório</span>
+        </header>
 
-        <label for="titulo">Título do formulário *</label>
-        <input type="text" id="titulo" placeholder="Ex: Registro de Staff" maxlength="100" />
-        <span class="hint" id="hintTitulo"></span>
+        <label for="titulo">
+          Título do formulário <span class="req" aria-hidden="true">*</span>
+        </label>
+        <input
+          type="text"
+          id="titulo"
+          maxlength="100"
+          placeholder="Ex: Registro de Staff"
+          required
+          aria-required="true"
+          autocomplete="off"
+        >
+        <span class="field-hint" id="hint-titulo" aria-live="polite"></span>
 
-        <label for="descricao">Descrição (opcional)</label>
-        <textarea id="descricao" placeholder="Ex: Preencha com atenção. Respostas incorretas serão ignoradas." maxlength="500"></textarea>
+        <label for="descricao">Descrição</label>
+        <textarea
+          id="descricao"
+          maxlength="500"
+          rows="3"
+          placeholder="Ex: Preencha com atenção. Respostas incorretas serão ignoradas."
+        ></textarea>
+        <span class="field-hint" id="hint-descricao"></span>
 
-        <div class="row">
+        <div class="row-2">
           <div>
-            <label for="cor">Cor do embed</label>
-            <div class="cor-picker">
-              <input type="color" id="cor" value="#5865f2" />
-              <input type="text" id="corHex" value="#5865f2" maxlength="7" />
-            </div>
-          </div>
-          <div>
-            <label for="categoria">Categoria (opcional)</label>
+            <label for="categoria">Categoria</label>
             <select id="categoria">
               <option value="">— Nenhuma —</option>
               <option value="registro">📝 Registro</option>
@@ -68,139 +301,547 @@
               <option value="denuncia">🚨 Denúncia</option>
               <option value="sugestao">💡 Sugestão</option>
               <option value="evento">🎉 Evento</option>
+              <option value="minecraft">⛏️ Minecraft</option>
+              <option value="projeto">💼 Projeto</option>
               <option value="outro">📦 Outro</option>
             </select>
           </div>
+
+          <div>
+            <label for="cor">Cor do embed</label>
+            <div class="color-picker">
+              <input
+                type="color"
+                id="cor"
+                value="#5865f2"
+                aria-label="Escolher cor visualmente"
+              >
+              <input
+                type="text"
+                id="corHex"
+                value="#5865f2"
+                maxlength="7"
+                spellcheck="false"
+                autocomplete="off"
+                aria-label="Código hexadecimal da cor"
+              >
+            </div>
+            <span class="field-hint" id="hint-cor" aria-live="polite"></span>
+          </div>
         </div>
 
-        <div class="checkboxes">
-          <input type="checkbox" id="dm" checked />
-          <label for="dm">Enviar cópia das respostas por DM</label>
-        </div>
+        <div class="switches">
+          <label class="switch">
+            <input type="checkbox" id="dm" checked>
+            <span class="switch-track" aria-hidden="true"></span>
+            <span class="switch-label">Enviar cópia das respostas por DM</span>
+          </label>
 
-        <div class="checkboxes">
-          <input type="checkbox" id="anonimo" />
-          <label for="anonimo">Ocultar nome do respondente no log público</label>
+          <label class="switch">
+            <input type="checkbox" id="anonimo">
+            <span class="switch-track" aria-hidden="true"></span>
+            <span class="switch-label">
+              Anonimizar respostas no canal
+              <span
+                class="tag-info"
+                title="Depende do bot implementar anonimato de verdade"
+                role="img"
+                aria-label="Informação: depende do bot"
+              >?</span>
+            </span>
+          </label>
         </div>
       </div>
 
-      <!-- ============ PASSO 2: PERGUNTAS ============ -->
-      <div class="card" data-step="2">
-        <div class="card-header">
-          <span class="step">2</span>
+      <!-- Perguntas -->
+      <div class="card">
+        <header class="card-header">
           <h3>Perguntas</h3>
-          <span class="badge" id="badgeContador">0 / 5</span>
+          <span class="badge" id="badge-perguntas">0 / 5</span>
+        </header>
+
+        <div class="compat-warn" id="compat-warn" hidden>
+          ⚠️ <b>Modo legado</b>: limite de 5 perguntas por formulário (contrato do bot atual).
         </div>
 
-        <div id="perguntas" class="perguntas"></div>
+        <div
+          id="perguntas"
+          class="perguntas"
+          aria-label="Lista de perguntas do formulário"
+        ></div>
 
-        <div class="erro" id="erro"></div>
+        <div class="erro-box" id="erro-editor" hidden role="alert"></div>
 
         <div class="card-actions">
-          <button class="btn secundario" id="btnAddPergunta">+ Adicionar pergunta</button>
-          <button class="btn secundario" id="btnAddRapida">⚡ Adicionar rápida</button>
-        </div>
-      </div>
-
-      <!-- ============ PASSO 3: AÇÕES ============ -->
-      <div class="card" data-step="3">
-        <div class="card-header">
-          <span class="step">3</span>
-          <h3>Gerar código</h3>
-        </div>
-
-        <div class="card-actions">
-          <button class="btn secundario" id="btnPreview">👁️ Pré-visualizar</button>
-          <button class="btn secundario" id="btnLimpar">🗑️ Limpar tudo</button>
-          <button class="btn primario" id="btnGerar">✨ Gerar JSON</button>
+          <button class="btn btn-ghost" id="btn-add-pergunta">
+            <span aria-hidden="true">➕</span>
+            <span>Adicionar pergunta</span>
+          </button>
+          <button
+            class="btn btn-ghost"
+            id="btn-add-rapida"
+            title="Adiciona uma pergunta comum de 1 clique"
+          >
+            <span aria-hidden="true">⚡</span>
+            <span>Rápida</span>
+          </button>
         </div>
       </div>
 
     </section>
-  </main>
 
-  <!-- ============ MODAL DE RESULTADO ============ -->
-  <div class="modal" id="modalResultado">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>✅ Formulário pronto!</h2>
-        <button class="btn-fechar" id="btnFecharModal">✕</button>
-      </div>
+    <!-- ============ COLUNA LATERAL ============ -->
+    <aside class="editor-col editor-col--side" aria-label="Pré-visualização e diagnóstico">
 
-      <div class="modal-body">
-        <p class="modal-info">
-          Copie o texto abaixo e cole no Discord usando <code>/form importar</code>.
-        </p>
+      <!-- Preview -->
+      <div class="card sticky">
+        <header class="card-header">
+          <h3>Pré-visualização</h3>
+          <button
+            class="btn btn-ghost btn-xs"
+            id="btn-refresh-preview"
+            aria-label="Atualizar pré-visualização"
+            title="Atualizar preview"
+          >↻</button>
+        </header>
 
-        <div class="code-box" id="codigoGerado"></div>
-
-        <div class="modal-actions">
-          <button class="btn primario" id="btnCopiar">📋 Copiar JSON</button>
-          <button class="btn secundario" id="btnBaixar">💾 Baixar .json</button>
+        <div class="preview-tabs" role="tablist" aria-label="Modos de visualização">
+          <button
+            class="active"
+            role="tab"
+            data-preview-tab="embed"
+            aria-selected="true"
+            aria-controls="preview-content"
+          >Embed</button>
+          <button
+            role="tab"
+            data-preview-tab="modal"
+            aria-selected="false"
+            aria-controls="preview-content"
+          >Modal</button>
+          <button
+            role="tab"
+            data-preview-tab="json"
+            aria-selected="false"
+            aria-controls="preview-content"
+          >JSON</button>
         </div>
 
-        <div class="passos">
-          <b>Como usar no Discord:</b>
-          <ol>
-            <li>Copie o JSON acima</li>
-            <li>Vá até o servidor e use <code>/form importar</code></li>
-            <li>Cole o JSON na opção <code>json</code></li>
-            <li>O bot vai gerar um código tipo <code>FORM-A3X9K2</code></li>
-            <li>Use <code>/form enviar code:FORM-A3X9K2 canal:#formularios</code></li>
-          </ol>
-        </div>
+        <div
+          id="preview-content"
+          class="preview-content"
+          role="tabpanel"
+          aria-live="polite"
+        ></div>
       </div>
+
+      <!-- Diagnóstico -->
+      <div class="card">
+        <header class="card-header">
+          <h3>Diagnóstico</h3>
+          <span class="badge" id="badge-diagnostico">—</span>
+        </header>
+
+        <div
+          id="diagnostico"
+          class="diagnostico"
+          aria-live="polite"
+        ></div>
+      </div>
+
+    </aside>
+
+  </div>
+
+</main>
+
+<!-- ============================================================
+     VIEW: TEMPLATES
+     ============================================================ -->
+<main class="view" id="view-templates" data-view="templates" hidden>
+
+  <div class="dashboard-header">
+    <div>
+      <h2 class="view-title">Biblioteca de templates</h2>
+      <p class="view-sub">Comece rápido com um modelo pronto — depois personalize à vontade.</p>
     </div>
   </div>
 
-  <!-- ============ MODAL DE PREVIEW ============ -->
-  <div class="modal" id="modalPreview">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>👁️ Pré-visualização</h2>
-        <button class="btn-fechar" id="btnFecharPreview">✕</button>
-      </div>
-      <div class="modal-body" id="previewBody"></div>
-    </div>
+  <div
+    class="templates-cats"
+    id="templates-cats"
+    role="tablist"
+    aria-label="Categorias de templates"
+  ></div>
+
+  <div class="templates-search">
+    <span aria-hidden="true">🔍</span>
+    <input
+      type="search"
+      id="busca-template"
+      placeholder="Buscar template..."
+      aria-label="Buscar template pelo nome"
+      autocomplete="off"
+    >
   </div>
 
-  <!-- ============ MODAL DE AJUDA ============ -->
-  <div class="modal" id="modalAjuda">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>❓ Ajuda</h2>
-        <button class="btn-fechar" id="btnFecharAjuda">✕</button>
+  <section
+    id="templates-grid"
+    class="templates-grid"
+    aria-live="polite"
+    aria-label="Lista de templates disponíveis"
+  ></section>
+
+</main>
+
+<!-- ============================================================
+     MODAL: EXPORTAR
+     ============================================================ -->
+<div
+  class="modal"
+  id="modal-exportar"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="titulo-exportar"
+  hidden
+>
+  <div class="modal-content">
+    <header class="modal-header">
+      <h2 id="titulo-exportar">📤 Exportar formulário</h2>
+      <button
+        class="icon-btn"
+        data-fechar-modal
+        aria-label="Fechar modal"
+        type="button"
+      >✕</button>
+    </header>
+
+    <div class="modal-body">
+      <div class="modal-tabs" role="tablist" aria-label="Formatos de exportação">
+        <button
+          class="active"
+          role="tab"
+          data-export-tab="legado"
+          aria-selected="true"
+        >Formato do bot</button>
+        <button
+          role="tab"
+          data-export-tab="completo"
+          aria-selected="false"
+        >Formato completo</button>
+        <button
+          role="tab"
+          data-export-tab="compacto"
+          aria-selected="false"
+        >Compacto</button>
       </div>
-      <div class="modal-body">
-        <h3>Como funciona?</h3>
-        <p>Este site cria formulários que o bot do Discord consegue ler. O fluxo é:</p>
-        <ol class="ajuda-lista">
-          <li>Preencha o formulário aqui</li>
-          <li>Clique em <b>Gerar JSON</b></li>
-          <li>Copie o texto e cole no Discord com <code>/form importar</code></li>
-          <li>Use <code>/form enviar</code> para publicar</li>
+
+      <p class="modal-hint" id="export-hint"></p>
+
+      <div
+        class="code-box"
+        id="export-code"
+        tabindex="0"
+        aria-label="JSON gerado"
+      ></div>
+
+      <div class="erro-box" id="export-erros" hidden role="alert"></div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="btn-copiar-json">
+          <span aria-hidden="true">📋</span>
+          <span>Copiar</span>
+        </button>
+        <button class="btn btn-ghost" id="btn-baixar-json">
+          <span aria-hidden="true">💾</span>
+          <span>Baixar .json</span>
+        </button>
+      </div>
+
+      <div class="modal-steps">
+        <b>Como usar no Discord:</b>
+        <ol>
+          <li>Copie o JSON acima</li>
+          <li>No servidor, use <code>/form importar</code></li>
+          <li>Cole o JSON no parâmetro <code>json</code></li>
+          <li>Publique com <code>/form enviar code:FORM-XXXXXX canal:#canal</code></li>
         </ol>
-
-        <h3>Tipos de pergunta</h3>
-        <ul class="ajuda-lista">
-          <li><b>Curta</b>: uma linha (até 200 chars)</li>
-          <li><b>Longa</b>: parágrafo (até 1000 chars)</li>
-          <li><b>Número</b>: aceita apenas números</li>
-          <li><b>Usuário/Canal/Cargo</b>: mostra dica de menção</li>
-        </ul>
-
-        <h3>Limites do Discord</h3>
-        <ul class="ajuda-lista">
-          <li>Máximo <b>5 perguntas</b> por formulário</li>
-          <li>Pergunta: até <b>45 caracteres</b></li>
-          <li>Placeholder: até <b>100 caracteres</b></li>
-        </ul>
       </div>
     </div>
   </div>
+</div>
 
-  <script src="templates.js"></script>
-  <script src="preview.js"></script>
-  <script src="app.js"></script>
+<!-- ============================================================
+     MODAL: IMPORTAR
+     ============================================================ -->
+<div
+  class="modal"
+  id="modal-importar"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="titulo-importar"
+  hidden
+>
+  <div class="modal-content">
+    <header class="modal-header">
+      <h2 id="titulo-importar">📥 Importar formulário</h2>
+      <button
+        class="icon-btn"
+        data-fechar-modal
+        aria-label="Fechar modal"
+        type="button"
+      >✕</button>
+    </header>
+
+    <div class="modal-body">
+      <div class="modal-tabs" role="tablist" aria-label="Formas de importação">
+        <button
+          class="active"
+          role="tab"
+          data-import-tab="colar"
+          aria-selected="true"
+        >Colar JSON</button>
+        <button
+          role="tab"
+          data-import-tab="arquivo"
+          aria-selected="false"
+        >Arquivo</button>
+      </div>
+
+      <div data-import-panel="colar">
+        <label for="import-json">Cole o JSON aqui</label>
+        <textarea
+          id="import-json"
+          rows="10"
+          placeholder='{"titulo":"...","perguntas":[...]}'
+          spellcheck="false"
+        ></textarea>
+      </div>
+
+      <div data-import-panel="arquivo" hidden>
+        <label for="import-file">Selecione um arquivo <code>.json</code></label>
+        <input type="file" id="import-file" accept="application/json,.json">
+        <span class="field-hint" id="hint-import-file"></span>
+      </div>
+
+      <div class="erro-box" id="import-erros" hidden role="alert"></div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="btn-confirmar-import">
+          <span aria-hidden="true">📥</span>
+          <span>Importar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL: AJUDA
+     ============================================================ -->
+<div
+  class="modal"
+  id="modal-ajuda"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="titulo-ajuda"
+  hidden
+>
+  <div class="modal-content">
+    <header class="modal-header">
+      <h2 id="titulo-ajuda">❓ Ajuda</h2>
+      <button
+        class="icon-btn"
+        data-fechar-modal
+        aria-label="Fechar modal"
+        type="button"
+      >✕</button>
+    </header>
+
+    <div class="modal-body">
+      <h3>Como funciona</h3>
+      <p>Este site é <b>100% offline</b>. Você cria o formulário aqui, copia o JSON e cola no Discord usando <code>/form importar</code>.</p>
+
+      <h3>Tipos de pergunta compatíveis com o bot</h3>
+      <ul>
+        <li><b>Curta</b> — uma linha (até 200 caracteres)</li>
+        <li><b>Longa</b> — parágrafo (até 1000 caracteres)</li>
+        <li><b>Número</b> — aceita apenas números</li>
+        <li><b>Usuário / Canal / Cargo</b> — texto com menção</li>
+      </ul>
+
+      <h3>Tipos extras (só no editor)</h3>
+      <p>Sim/Não, Seleção, Múltipla, Data, URL, E-mail — ficam salvos no rascunho, mas <b>não são exportados</b> para o bot atual porque o Discord não suporta nativamente.</p>
+
+      <h3>Limites do bot</h3>
+      <ul>
+        <li>Máx. <b>5 perguntas</b> por formulário</li>
+        <li>Pergunta: até <b>45</b> caracteres</li>
+        <li>Placeholder: até <b>100</b> caracteres</li>
+        <li>Cor: formato <code>#RRGGBB</code></li>
+      </ul>
+
+      <h3>Atalhos de teclado</h3>
+      <ul class="atalhos">
+        <li><kbd>Ctrl</kbd>+<kbd>S</kbd> — Salvar</li>
+        <li><kbd>Ctrl</kbd>+<kbd>Z</kbd> — Desfazer</li>
+        <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> — Refazer</li>
+        <li><kbd>Ctrl</kbd>+<kbd>E</kbd> — Exportar</li>
+        <li><kbd>Ctrl</kbd>+<kbd>P</kbd> — Preview</li>
+        <li><kbd>Esc</kbd> — Fechar modal</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL: CONFIGURAÇÕES
+     ============================================================ -->
+<div
+  class="modal"
+  id="modal-config"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="titulo-config"
+  hidden
+>
+  <div class="modal-content">
+    <header class="modal-header">
+      <h2 id="titulo-config">⚙️ Configurações</h2>
+      <button
+        class="icon-btn"
+        data-fechar-modal
+        aria-label="Fechar modal"
+        type="button"
+      >✕</button>
+    </header>
+
+    <div class="modal-body">
+      <h3>Aparência</h3>
+
+      <label class="switch">
+        <input type="checkbox" id="cfg-tema-escuro" checked>
+        <span class="switch-track" aria-hidden="true"></span>
+        <span class="switch-label">Tema escuro</span>
+      </label>
+
+      <label class="switch">
+        <input type="checkbox" id="cfg-densidade">
+        <span class="switch-track" aria-hidden="true"></span>
+        <span class="switch-label">Densidade compacta</span>
+      </label>
+
+      <label class="switch">
+        <input type="checkbox" id="cfg-animacoes" checked>
+        <span class="switch-track" aria-hidden="true"></span>
+        <span class="switch-label">Animações e transições</span>
+      </label>
+
+      <h3>Editor</h3>
+
+      <label class="switch">
+        <input type="checkbox" id="cfg-autosave" checked>
+        <span class="switch-track" aria-hidden="true"></span>
+        <span class="switch-label">Salvamento automático</span>
+      </label>
+
+      <label class="switch">
+        <input type="checkbox" id="cfg-confirmar-excluir" checked>
+        <span class="switch-track" aria-hidden="true"></span>
+        <span class="switch-label">Confirmar antes de excluir</span>
+      </label>
+
+      <h3>Dados</h3>
+
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="btn-export-backup">
+          <span aria-hidden="true">💾</span>
+          <span>Exportar backup</span>
+        </button>
+        <button class="btn btn-ghost" id="btn-import-backup">
+          <span aria-hidden="true">📥</span>
+          <span>Importar backup</span>
+        </button>
+      </div>
+
+      <input type="file" id="input-backup" accept="application/json,.json" hidden>
+
+      <div class="modal-actions">
+        <button class="btn btn-danger" id="btn-limpar-tudo">
+          <span aria-hidden="true">🗑️</span>
+          <span>Apagar todos os dados</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL: CONFIRMAÇÃO
+     ============================================================ -->
+<div
+  class="modal"
+  id="modal-confirmar"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="confirm-titulo"
+  hidden
+>
+  <div class="modal-content modal-content--sm">
+    <header class="modal-header">
+      <h2 id="confirm-titulo">Confirmar</h2>
+    </header>
+
+    <div class="modal-body">
+      <p id="confirm-msg"></p>
+
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="confirm-cancelar">Cancelar</button>
+        <button class="btn btn-danger" id="confirm-ok">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TOASTS
+     ============================================================ -->
+<div
+  id="toasts"
+  class="toasts"
+  aria-live="polite"
+  aria-atomic="true"
+></div>
+
+<!-- ============================================================
+     SCRIPTS — ordem importa!
+     1) config   → constantes e dependências zero
+     2) utils    → helpers puros
+     3) storage  → precisa de config
+     4) settings → precisa de storage
+     5) validation
+     6) templates
+     7) history
+     8) preview
+     9) exporter
+    10) importer
+    11) editor
+    12) dashboard
+    13) app      → inicializa tudo
+     ============================================================ -->
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/validation.js"></script>
+<script src="js/templates.js"></script>
+<script src="js/history.js"></script>
+<script src="js/preview.js"></script>
+<script src="js/exporter.js"></script>
+<script src="js/importer.js"></script>
+<script src="js/editor.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/app.js"></script>
+
 </body>
 </html>
