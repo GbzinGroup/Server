@@ -3,63 +3,67 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0b1220">
-  <title>Verificação Discord | GBZin</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+  <meta name="robots" content="noindex,nofollow">
+  <title>Código de autorização • GBZin</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    main{min-height:calc(100vh - 76px);display:grid;place-items:center;padding:32px 18px}
+    .oauth-card{width:min(100%,620px);padding:clamp(24px,5vw,42px);background:linear-gradient(145deg,rgba(21,29,48,.97),rgba(12,17,30,.98));border:1px solid var(--line);border-radius:24px;box-shadow:0 24px 80px #0006}
+    .mark{width:58px;height:58px;display:grid;place-items:center;border-radius:18px;background:#637cff20;border:1px solid #637cff66;color:#91a2ff;font-size:27px;margin-bottom:22px}
+    h1{font-size:clamp(25px,5vw,35px);line-height:1.15;margin:0 0 12px}p{color:var(--muted);margin:0 0 20px}.status{display:flex;align-items:center;gap:9px;font-size:13px;color:#8ee7bd;margin-bottom:15px}.dot{width:8px;height:8px;border-radius:50%;background:#55d6a2;box-shadow:0 0 12px #55d6a266}
+    .code-wrap{margin:22px 0 14px;padding:16px;background:#080d18;border:1px solid #34415e;border-radius:14px;overflow-wrap:anywhere;word-break:break-all;font:14px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;color:#f4f7ff;min-height:58px;user-select:all}
+    .actions{display:flex;flex-wrap:wrap;gap:10px}.btn{border:0;border-radius:12px;padding:12px 18px;font:600 14px inherit;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:46px}.primary{background:var(--blue);color:white}.secondary{background:#ffffff0b;border:1px solid var(--line);color:var(--text)}.notice{font-size:12px;margin-top:20px;padding:12px 14px;border-radius:12px;background:#f6b94b12;border:1px solid #f6b94b38;color:#e8c98d}.error{color:#ffb4b4}.hidden{display:none!important}header .brand{font-weight:750;letter-spacing:.2px;color:var(--text);text-decoration:none}header .brand span{color:#8fa0ff}
+  </style>
 </head>
 <body>
-  <main class="page">
-    <section class="verify-card" aria-labelledby="page-title">
-      <div class="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 24 24" role="img">
-          <path d="M12 2.8 19 5.5v5.9c0 4.5-2.9 7.9-7 9.8-4.1-1.9-7-5.3-7-9.8V5.5l7-2.7Z"/>
-          <path d="m8.5 12 2.2 2.2 4.8-5"/>
-        </svg>
-      </div>
-      <p class="eyebrow">GBZIN COMMUNITY</p>
-      <h1 id="page-title">Verificação de acesso</h1>
-      <p class="intro">Confirme que você é humano para continuar para a comunidade.</p>
-
-      <div class="steps" aria-label="Etapas da verificação">
-        <span class="step active"><i>1</i> Verificação</span>
-        <span class="step-line"></span>
-        <span class="step"><i>2</i> Conclusão</span>
-      </div>
-
-      <div class="notice" role="note">
-        <span class="notice-icon" aria-hidden="true">!</span>
-        <p>Não compartilhe sua senha ou token do Discord. A verificação oficial deve acontecer por uma autorização segura do Discord.</p>
-      </div>
-
-      <form id="verify-form">
-        <label class="check-row" for="human-check">
-          <input id="human-check" name="human-check" type="checkbox">
-          <span class="fake-checkbox" aria-hidden="true"></span>
-          <span>Sou uma pessoa e quero verificar meu acesso</span>
-        </label>
-        <p id="form-error" class="form-message error" aria-live="polite"></p>
-        <button id="verify-button" type="submit">
-          <span class="button-label">Continuar verificação</span>
-          <span class="button-arrow" aria-hidden="true">→</span>
-        </button>
-      </form>
-
-      <section id="result" class="result" hidden aria-live="polite">
-        <div class="result-icon" aria-hidden="true">✓</div>
-        <h2>Etapa visual concluída</h2>
-        <p>Você concluiu a confirmação nesta página. Isso ainda não verifica sua conta Discord nem concede cargos.</p>
-        <button id="reset-button" class="secondary-button" type="button">Voltar</button>
-      </section>
-
-      <footer>
-        <span class="status-dot"></span>
-        <span>Conexão protegida pela sua navegação</span>
-        <span class="footer-divider">•</span>
-        <span>GBZin</span>
-      </footer>
-    </section>
-    <p class="bottom-note">Precisa de ajuda? Entre em contato com a equipe da comunidade.</p>
-  </main>
+  <header><a class="brand" href="/">GBZin <span>•</span> Autorização</a><span style="color:var(--muted);font-size:13px">Discord OAuth2</span></header>
+  <main><section class="oauth-card" aria-live="polite">
+    <div class="mark" aria-hidden="true">✓</div>
+    <div id="status" class="status"><span class="dot"></span>Retorno do Discord recebido</div>
+    <h1 id="heading">Seu código de autorização</h1>
+    <p id="description">Copie o código abaixo e cole no local solicitado pelo bot Toshiro.</p>
+    <div id="code" class="code-wrap">Verificando retorno do Discord…</div>
+    <div class="actions"><button id="copy" class="btn primary" type="button">Copiar código</button><a class="btn secondary" href="/">Voltar ao site</a></div>
+    <div id="notice" class="notice">Não compartilhe este código com ninguém. Ele é temporário e deve ser usado somente no fluxo de verificação do bot.</div>
+  </section></main>
+  <script>
+    (() => {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+      const error = params.get('error');
+      const codeEl = document.getElementById('code');
+      const copyBtn = document.getElementById('copy');
+      const heading = document.getElementById('heading');
+      const description = document.getElementById('description');
+      const status = document.getElementById('status');
+      const notice = document.getElementById('notice');
+      if (error) {
+        heading.textContent = 'Autorização não concluída';
+        description.textContent = params.get('error_description') || 'Você cancelou ou o Discord recusou a autorização. Volte ao bot e tente novamente.';
+        codeEl.textContent = 'Nenhum código foi recebido.';
+        status.innerHTML = '<span class="dot" style="background:#ff7777"></span><span class="error">Falha na autorização</span>';
+        copyBtn.classList.add('hidden'); notice.classList.add('hidden'); return;
+      }
+      if (!code) {
+        heading.textContent = 'Código não encontrado';
+        description.textContent = 'O Discord não enviou o parâmetro ?code= nesta página. Volte ao bot e inicie a verificação novamente.';
+        codeEl.textContent = 'A URL não contém um código de autorização.';
+        status.innerHTML = '<span class="dot" style="background:#f6b94b"></span><span style="color:#e8c98d">Aguardando novo retorno</span>';
+        copyBtn.classList.add('hidden'); return;
+      }
+      codeEl.textContent = code;
+      copyBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(code);
+          copyBtn.textContent = 'Código copiado!';
+          setTimeout(() => copyBtn.textContent = 'Copiar código', 1800);
+        } catch (_) {
+          const range = document.createRange(); range.selectNodeContents(codeEl);
+          const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(range);
+          copyBtn.textContent = 'Selecione e copie';
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
