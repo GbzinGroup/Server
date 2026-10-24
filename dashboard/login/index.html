@@ -1,13 +1,55 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Entrar · Toshiro Dashboard</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080b13">
+<meta name="description" content="Acesse o painel do Toshiro Bot com sua conta Discord.">
+<title>Entrar | Toshiro Dashboard</title>
 <style>
-:root{color-scheme:dark;--bg:#0b0b10;--panel:#14141d;--line:#292938;--muted:#a4a4b5;--accent:#7865ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at top,#211b46 0,transparent 55%),var(--bg);font:16px system-ui,-apple-system,Segoe UI,sans-serif;color:#f6f5ff}.card{width:min(440px,100%);padding:32px;border:1px solid var(--line);border-radius:22px;background:rgba(20,20,29,.95);box-shadow:0 24px 80px #0008}.logo{width:52px;height:52px;display:grid;place-items:center;background:#282044;border-radius:16px;font-size:26px;margin-bottom:22px}h1{font-size:26px;margin:0 0 8px}p{color:var(--muted);line-height:1.6;margin:0 0 22px}.btn{width:100%;border:0;border-radius:12px;padding:14px 16px;background:var(--accent);color:white;font-weight:700;font-size:15px;cursor:pointer}.btn:hover{filter:brightness(1.1)}.hint{font-size:12px;margin-top:18px;margin-bottom:0}.error{color:#ff9b9b;font-size:13px;margin-top:12px;display:none}
-</style></head><body><main class="card"><div class="logo">🛡️</div><h1>Toshiro Dashboard</h1><p>Entre com sua conta Discord para gerenciar tickets e configurações dos servidores autorizados.</p><button id="login" class="btn">Continuar com Discord</button><div id="error" class="error"></div><p class="hint">Nunca informe sua senha do Discord nesta página. A autenticação acontece no domínio oficial discord.com.</p></main>
+:root{color-scheme:dark;--bg:#080b13;--panel:#101725;--line:#243047;--text:#f5f7ff;--muted:#9aa8c3;--cyan:#71e7ff;--blue:#527dff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 50% 0,#1d3761 0,transparent 48%),var(--bg);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text)}
+.card{width:min(100%,440px);padding:34px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(145deg,#131d30f5,#0c111cf7);box-shadow:0 24px 90px #0008}
+.brand{display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:1.5px}.logo{width:46px;height:46px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(135deg,#71e7ff,#527dff);color:#07111e;font-size:22px;font-weight:1000;box-shadow:0 0 35px #527dff40}
+.eyebrow{margin:30px 0 10px;color:var(--cyan);font-size:11px;font-weight:800;letter-spacing:2.4px;text-transform:uppercase}h1{margin:0;font-size:clamp(28px,6vw,36px);letter-spacing:-1.2px}p{color:var(--muted);line-height:1.65;font-size:14px}.features{display:grid;gap:10px;margin:23px 0}.feature{display:flex;gap:10px;align-items:center;padding:12px;border:1px solid #26334a;border-radius:12px;background:#ffffff04;color:#d9e4fa;font-size:13px}.check{color:var(--cyan);font-weight:900}
+button,.button{width:100%;display:flex;align-items:center;justify-content:center;gap:11px;border:0;border-radius:13px;padding:15px 18px;background:#5865f2;color:white;text-decoration:none;font-weight:850;font-size:14px;cursor:pointer;transition:transform .2s,filter .2s}button:hover,.button:hover{transform:translateY(-1px);filter:brightness(1.08)}button:disabled{opacity:.5;cursor:wait}.discord{width:21px;height:21px;fill:white}.note{margin-top:17px;padding-top:15px;border-top:1px solid var(--line);font-size:11px;color:#71809d;line-height:1.6}.status{margin-top:12px;min-height:18px;color:#ffc7a1;font-size:12px}.foot{text-align:center;margin-top:22px;color:#64718a;font-size:10px;letter-spacing:1px}
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="brand"><div class="logo">T</div><div>TOSHIRO <span style="color:var(--cyan)">DASHBOARD</span></div></div>
+  <div class="eyebrow">Área administrativa</div>
+  <h1>Entre com o Discord.</h1>
+  <p>Conecte sua conta Discord para acessar o painel do Toshiro Bot. O acesso deve ser autorizado e validado pelo servidor.</p>
+  <div class="features">
+    <div class="feature"><span class="check">✓</span> Login seguro pelo Discord OAuth2</div>
+    <div class="feature"><span class="check">✓</span> Acesso condicionado às permissões do servidor</div>
+    <div class="feature"><span class="check">✓</span> Gerenciamento de tickets e configurações</div>
+  </div>
+  <button id="loginButton" type="button">
+    <svg class="discord" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.7 5.3A18.4 18.4 0 0 0 15.2 4l-.6 1.2a16.7 16.7 0 0 0-5.2 0L8.8 4a18.4 18.4 0 0 0-4.5 1.3C1.5 9.5.7 13.6 1.1 17.7a18.5 18.5 0 0 0 5.5 2.8l1.2-1.9-1.9-.9.5-.4c3.7 1.7 7.6 1.7 11.2 0l.5.4-1.9.9 1.2 1.9a18.4 18.4 0 0 0 5.5-2.8c.5-4.8-.8-8.9-3.2-12.4ZM8.7 14.9c-1.1 0-2-1-2-2.2s.9-2.2 2-2.2 2 1 2 2.2-.9 2.2-2 2.2Zm6.6 0c-1.1 0-2-1-2-2.2s.9-2.2 2-2.2 2 1 2 2.2-.9 2.2-2 2.2Z"/></svg>
+    Continuar com Discord
+  </button>
+  <div id="status" class="status" role="status" aria-live="polite"></div>
+  <div class="note">Ao continuar, você autoriza o fluxo de autenticação do Toshiro. O painel nunca deve solicitar sua senha do Discord. A verificação de permissões acontece no backend.</div>
+</main>
+<div class="foot">GBZIN GROUP · TOSHIRO BOT</div>
 <script>
-
-const LOGIN_URL = 'https://gbzin.com.br/dashboard/login';
-document.getElementById('login').addEventListener('click',()=>{if(LOGIN_URL.includes('gbzin.com.br')){const e=document.getElementById('error');e.textContent='Configure LOGIN_URL com o endereço HTTPS público do backend Node.js do Toshiro.';e.style.display='block';return;}location.href=LOGIN_URL;});
-</script></body></html>
+(() => {
+  const CLIENT_ID = "1533965368723243170";
+  const REDIRECT_URI = "https://gbzin.com.br/dashboard/callback/";
+  const button = document.getElementById("loginButton");
+  const status = document.getElementById("status");
+  button.addEventListener("click", () => {
+    if (!CLIENT_ID || CLIENT_ID.includes("COLOQUE")) {
+      status.textContent = "Configure o CLIENT_ID no arquivo antes de publicar.";
+      return;
+    }
+    // OAuth state é gerado pelo backend para proteção CSRF; não invente um state no navegador.
+    // Este endpoint inicia o fluxo e deve criar/guardar o state na sessão.
+    window.location.href = "/api/dashboard/oauth/start?redirect_uri=" + encodeURIComponent(REDIRECT_URI);
+  });
+})();
+</script>
+</body>
+</html>
