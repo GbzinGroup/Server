@@ -1,0 +1,8 @@
+/* CONFIGURAÇÃO DO GITHUB TICKETS
+   Cole abaixo a URL pública do backend Node.js da BlazeHosting, sem / no final.
+   Exemplo: https://seu-servidor.exemplo.com
+   Não use a URL do GitHub Pages aqui.
+*/
+window.GBZIN_CONFIG = { BACKEND_URL: 'https://gbzin.com.br' };
+
+window.GBZIN_CONFIGURED = /^https?:\/\//i.test(window.GBZIN_CONFIG.BACKEND_URL) && !window.GBZIN_CONFIG.BACKEND_URL.includes('COLE_A_URL');
