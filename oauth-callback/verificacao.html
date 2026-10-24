@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1220">
+  <title>Verificação Discord | GBZin</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="page">
+    <section class="verify-card" aria-labelledby="page-title">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" role="img">
+          <path d="M12 2.8 19 5.5v5.9c0 4.5-2.9 7.9-7 9.8-4.1-1.9-7-5.3-7-9.8V5.5l7-2.7Z"/>
+          <path d="m8.5 12 2.2 2.2 4.8-5"/>
+        </svg>
+      </div>
+      <p class="eyebrow">GBZIN COMMUNITY</p>
+      <h1 id="page-title">Verificação de acesso</h1>
+      <p class="intro">Confirme que você é humano para continuar para a comunidade.</p>
+
+      <div class="steps" aria-label="Etapas da verificação">
+        <span class="step active"><i>1</i> Verificação</span>
+        <span class="step-line"></span>
+        <span class="step"><i>2</i> Conclusão</span>
+      </div>
+
+      <div class="notice" role="note">
+        <span class="notice-icon" aria-hidden="true">!</span>
+        <p>Não compartilhe sua senha ou token do Discord. A verificação oficial deve acontecer por uma autorização segura do Discord.</p>
+      </div>
+
+      <form id="verify-form">
+        <label class="check-row" for="human-check">
+          <input id="human-check" name="human-check" type="checkbox">
+          <span class="fake-checkbox" aria-hidden="true"></span>
+          <span>Sou uma pessoa e quero verificar meu acesso</span>
+        </label>
+        <p id="form-error" class="form-message error" aria-live="polite"></p>
+        <button id="verify-button" type="submit">
+          <span class="button-label">Continuar verificação</span>
+          <span class="button-arrow" aria-hidden="true">→</span>
+        </button>
+      </form>
+
+      <section id="result" class="result" hidden aria-live="polite">
+        <div class="result-icon" aria-hidden="true">✓</div>
+        <h2>Etapa visual concluída</h2>
+        <p>Você concluiu a confirmação nesta página. Isso ainda não verifica sua conta Discord nem concede cargos.</p>
+        <button id="reset-button" class="secondary-button" type="button">Voltar</button>
+      </section>
+
+      <footer>
+        <span class="status-dot"></span>
+        <span>Conexão protegida pela sua navegação</span>
+        <span class="footer-divider">•</span>
+        <span>GBZin</span>
+      </footer>
+    </section>
+    <p class="bottom-note">Precisa de ajuda? Entre em contato com a equipe da comunidade.</p>
+  </main>
+</body>
+</html>
