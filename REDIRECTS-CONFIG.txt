@@ -1,0 +1,11 @@
+GBZIN TICKETS — CONFIGURAÇÃO DE ROTAS
+
+As rotas abaixo devem ser encaminhadas ao servidor Node.js da BlazeHosting por proxy/rewrite (não apenas redirecionamento 301/302):
+
+/auth/discord       -> backend Node.js /auth/discord
+/auth/discord/callback -> backend Node.js /auth/discord/callback
+/api/*              -> backend Node.js /api/*
+
+Os arquivos HTML públicos permanecem no GitHub Pages.
+
+Se seu provedor de redirecionamento não oferece proxy/rewrite, login e APIs não funcionarão apenas com GitHub Pages. Nesse caso, hospede também a interface em um serviço que suporte proxy, ou configure um proxy compatível.
