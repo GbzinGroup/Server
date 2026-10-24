@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entrar · Toshiro Dashboard</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0b10;--panel:#14141d;--line:#292938;--muted:#a4a4b5;--accent:#7865ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at top,#211b46 0,transparent 55%),var(--bg);font:16px system-ui,-apple-system,Segoe UI,sans-serif;color:#f6f5ff}.card{width:min(440px,100%);padding:32px;border:1px solid var(--line);border-radius:22px;background:rgba(20,20,29,.95);box-shadow:0 24px 80px #0008}.logo{width:52px;height:52px;display:grid;place-items:center;background:#282044;border-radius:16px;font-size:26px;margin-bottom:22px}h1{font-size:26px;margin:0 0 8px}p{color:var(--muted);line-height:1.6;margin:0 0 22px}.btn{width:100%;border:0;border-radius:12px;padding:14px 16px;background:var(--accent);color:white;font-weight:700;font-size:15px;cursor:pointer}.btn:hover{filter:brightness(1.1)}.hint{font-size:12px;margin-top:18px;margin-bottom:0}.error{color:#ff9b9b;font-size:13px;margin-top:12px;display:none}
+</style></head><body><main class="card"><div class="logo">🛡️</div><h1>Toshiro Dashboard</h1><p>Entre com sua conta Discord para gerenciar tickets e configurações dos servidores autorizados.</p><button id="login" class="btn">Continuar com Discord</button><div id="error" class="error"></div><p class="hint">Nunca informe sua senha do Discord nesta página. A autenticação acontece no domínio oficial discord.com.</p></main>
+<script>
+
+const LOGIN_URL = 'https://gbzin.com.br/dashboard/login';
+document.getElementById('login').addEventListener('click',()=>{if(LOGIN_URL.includes('gbzin.com.br')){const e=document.getElementById('error');e.textContent='Configure LOGIN_URL com o endereço HTTPS público do backend Node.js do Toshiro.';e.style.display='block';return;}location.href=LOGIN_URL;});
+</script></body></html>
