@@ -1,67 +1,193 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex,nofollow">
-  <title>Código de autorização • GBZin</title>
-  <link rel="stylesheet" href="../style.css">
+  <meta name="theme-color" content="#111318">
+  <meta name="description" content="Página de retorno OAuth2 do Toshiro Bot. Copie seu código de verificação com segurança.">
+  <title>Verificação Discord | Toshiro Bot</title>
   <style>
-    main{min-height:calc(100vh - 76px);display:grid;place-items:center;padding:32px 18px}
-    .oauth-card{width:min(100%,620px);padding:clamp(24px,5vw,42px);background:linear-gradient(145deg,rgba(21,29,48,.97),rgba(12,17,30,.98));border:1px solid var(--line);border-radius:24px;box-shadow:0 24px 80px #0006}
-    .mark{width:58px;height:58px;display:grid;place-items:center;border-radius:18px;background:#637cff20;border:1px solid #637cff66;color:#91a2ff;font-size:27px;margin-bottom:22px}
-    h1{font-size:clamp(25px,5vw,35px);line-height:1.15;margin:0 0 12px}p{color:var(--muted);margin:0 0 20px}.status{display:flex;align-items:center;gap:9px;font-size:13px;color:#8ee7bd;margin-bottom:15px}.dot{width:8px;height:8px;border-radius:50%;background:#55d6a2;box-shadow:0 0 12px #55d6a266}
-    .code-wrap{margin:22px 0 14px;padding:16px;background:#080d18;border:1px solid #34415e;border-radius:14px;overflow-wrap:anywhere;word-break:break-all;font:14px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;color:#f4f7ff;min-height:58px;user-select:all}
-    .actions{display:flex;flex-wrap:wrap;gap:10px}.btn{border:0;border-radius:12px;padding:12px 18px;font:600 14px inherit;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:46px}.primary{background:var(--blue);color:white}.secondary{background:#ffffff0b;border:1px solid var(--line);color:var(--text)}.notice{font-size:12px;margin-top:20px;padding:12px 14px;border-radius:12px;background:#f6b94b12;border:1px solid #f6b94b38;color:#e8c98d}.error{color:#ffb4b4}.hidden{display:none!important}header .brand{font-weight:750;letter-spacing:.2px;color:var(--text);text-decoration:none}header .brand span{color:#8fa0ff}
+    :root {
+      color-scheme: dark;
+      --bg: #0d0f13;
+      --panel: #151820;
+      --panel-soft: #1b1f29;
+      --text: #f3f5f9;
+      --muted: #a4aaba;
+      --line: #2b3040;
+      --accent: #b8a1ff;
+      --accent-strong: #8b6cff;
+      --success: #54d6a0;
+      --danger: #ff7b86;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      padding: 24px; background:
+        radial-gradient(ellipse at 50% 0%, rgba(139,108,255,.13), transparent 42%),
+        var(--bg); color: var(--text);
+      font: 16px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .shell { width: 100%; max-width: 540px; }
+    .brand { display: flex; align-items: center; gap: 12px; margin: 0 0 22px 4px; }
+    .mark {
+      width: 44px; height: 44px; display: grid; place-items: center; border-radius: 14px;
+      background: #211d34; border: 1px solid #44386d; color: var(--accent);
+      font-weight: 900; font-size: 21px;
+    }
+    .brand-name { font-weight: 750; letter-spacing: .2px; }
+    .brand-sub { color: var(--muted); font-size: 13px; }
+    .card {
+      background: rgba(21,24,32,.96); border: 1px solid var(--line); border-radius: 22px;
+      padding: clamp(22px, 5vw, 34px); box-shadow: 0 24px 80px rgba(0,0,0,.28);
+    }
+    .status {
+      display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line);
+      background: var(--panel-soft); color: var(--muted); padding: 6px 10px;
+      border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: .3px;
+    }
+    .dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; }
+    h1 { font-size: clamp(25px, 5vw, 32px); line-height: 1.2; letter-spacing: -.8px; margin: 18px 0 10px; }
+    .intro { color: var(--muted); margin: 0 0 25px; }
+    .label { display: block; font-size: 13px; font-weight: 700; margin: 0 0 8px; color: #dce0ea; }
+    .codebox {
+      min-height: 56px; display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+      border: 1px solid var(--line); border-radius: 12px; background: #0d1016;
+    }
+    #code { min-width: 0; flex: 1; overflow-wrap: anywhere; font: 13px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; color: #e6ddff; }
+    .placeholder { color: #7f8798 !important; }
+    button, .button {
+      appearance: none; border: 0; border-radius: 11px; min-height: 46px; padding: 0 16px;
+      display: inline-flex; justify-content: center; align-items: center; gap: 8px;
+      font: inherit; font-weight: 750; cursor: pointer; text-decoration: none;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+    }
+    button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+    button:hover, .button:hover { transform: translateY(-1px); }
+    .copy { background: var(--accent); color: #171222; white-space: nowrap; }
+    .copy:hover { background: #c9b8ff; }
+    .primary { width: 100%; margin-top: 14px; background: var(--accent-strong); color: white; }
+    .primary:hover { background: #9b82ff; }
+    .message { margin: 14px 0 0; font-size: 13px; color: var(--muted); min-height: 20px; }
+    .message.ok { color: var(--success); }
+    .message.error { color: var(--danger); }
+    .steps { margin: 24px 0 0; padding: 18px 0 0; border-top: 1px solid var(--line); }
+    .steps h2 { font-size: 14px; margin: 0 0 10px; }
+    .steps ol { margin: 0; padding-left: 20px; color: var(--muted); font-size: 13px; }
+    .steps li + li { margin-top: 6px; }
+    .warning { margin-top: 18px; padding: 12px 13px; border: 1px solid #4b3d2c; border-radius: 12px; background: #211b15; color: #e8cba7; font-size: 12px; }
+    footer { text-align: center; color: #72798a; font-size: 12px; margin-top: 18px; }
+    .hidden { display: none !important; }
+    @media (max-width: 420px) {
+      body { padding: 16px; }
+      .codebox { align-items: stretch; flex-direction: column; }
+      .copy { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
   </style>
 </head>
 <body>
-  <header><a class="brand" href="/">GBZin <span>•</span> Autorização</a><span style="color:var(--muted);font-size:13px">Discord OAuth2</span></header>
-  <main><section class="oauth-card" aria-live="polite">
-    <div class="mark" aria-hidden="true">✓</div>
-    <div id="status" class="status"><span class="dot"></span>Retorno do Discord recebido</div>
-    <h1 id="heading">Seu código de autorização</h1>
-    <p id="description">Copie o código abaixo e cole no local solicitado pelo bot Toshiro.</p>
-    <div id="code" class="code-wrap">Verificando retorno do Discord…</div>
-    <div class="actions"><button id="copy" class="btn primary" type="button">Copiar código</button><a class="btn secondary" href="/">Voltar ao site</a></div>
-    <div id="notice" class="notice">Não compartilhe este código com ninguém. Ele é temporário e deve ser usado somente no fluxo de verificação do bot.</div>
-  </section></main>
+  <main class="shell">
+    <header class="brand" aria-label="Toshiro Bot">
+      <div class="mark" aria-hidden="true">T</div>
+      <div>
+        <div class="brand-name">Toshiro Bot</div>
+        <div class="brand-sub">Verificação de conta Discord</div>
+      </div>
+    </header>
+
+    <section class="card">
+      <div class="status"><span class="dot"></span><span id="statusText">RETORNO OAUTH2</span></div>
+      <h1 id="title">Seu código de verificação</h1>
+      <p class="intro" id="intro">Se você autorizou o Toshiro Bot no Discord, o código aparecerá abaixo. Copie-o e use no comando de verificação do servidor.</p>
+
+      <div id="codeSection">
+        <label class="label" for="code">Código de autorização</label>
+        <div class="codebox">
+          <code id="code" class="placeholder">Procurando código na URL…</code>
+          <button id="copyBtn" class="copy" type="button" disabled>Copiar código</button>
+        </div>
+        <button id="discordBtn" class="primary" type="button">Copiar e ver instruções</button>
+        <p id="message" class="message" role="status" aria-live="polite"></p>
+      </div>
+
+      <div id="errorSection" class="hidden">
+        <p id="errorText" class="message error"></p>
+        <a class="button primary" href="https://discord.com/app">Voltar ao Discord</a>
+      </div>
+
+      <div class="steps">
+        <h2>Como concluir</h2>
+        <ol>
+          <li>Copie o código exibido nesta página.</li>
+          <li>Volte ao servidor Discord em que iniciou a verificação.</li>
+          <li>Execute <code>/verificar-codigo</code> e cole o código no campo <code>code</code>.</li>
+        </ol>
+      </div>
+      <div class="warning">Não compartilhe este código com outras pessoas. Ele é temporário e pode ser usado para concluir a autorização da sua conta.</div>
+    </section>
+    <footer>Conexão segura via autorização do Discord · Toshiro Bot</footer>
+  </main>
+
   <script>
     (() => {
       const params = new URLSearchParams(window.location.search);
       const code = params.get('code');
-      const error = params.get('error');
+      const oauthError = params.get('error');
       const codeEl = document.getElementById('code');
-      const copyBtn = document.getElementById('copy');
-      const heading = document.getElementById('heading');
-      const description = document.getElementById('description');
-      const status = document.getElementById('status');
-      const notice = document.getElementById('notice');
-      if (error) {
-        heading.textContent = 'Autorização não concluída';
-        description.textContent = params.get('error_description') || 'Você cancelou ou o Discord recusou a autorização. Volte ao bot e tente novamente.';
-        codeEl.textContent = 'Nenhum código foi recebido.';
-        status.innerHTML = '<span class="dot" style="background:#ff7777"></span><span class="error">Falha na autorização</span>';
-        copyBtn.classList.add('hidden'); notice.classList.add('hidden'); return;
+      const copyBtn = document.getElementById('copyBtn');
+      const discordBtn = document.getElementById('discordBtn');
+      const message = document.getElementById('message');
+      const codeSection = document.getElementById('codeSection');
+      const errorSection = document.getElementById('errorSection');
+
+      // Não envia o código a nenhum servidor. Ele fica apenas nesta página até ser copiado.
+      if (oauthError) {
+        codeSection.classList.add('hidden');
+        errorSection.classList.remove('hidden');
+        document.getElementById('statusText').textContent = 'AUTORIZAÇÃO NÃO CONCLUÍDA';
+        document.getElementById('title').textContent = 'Autorização cancelada';
+        document.getElementById('intro').textContent = 'O Discord não concluiu a autorização.';
+        document.getElementById('errorText').textContent =
+          oauthError === 'access_denied'
+            ? 'Você cancelou a autorização. Volte ao servidor e inicie a verificação novamente.'
+            : 'O Discord retornou um erro (' + oauthError.replace(/[^\w.-]/g, '') + '). Tente iniciar a verificação novamente.';
+        return;
       }
+
       if (!code) {
-        heading.textContent = 'Código não encontrado';
-        description.textContent = 'O Discord não enviou o parâmetro ?code= nesta página. Volte ao bot e inicie a verificação novamente.';
-        codeEl.textContent = 'A URL não contém um código de autorização.';
-        status.innerHTML = '<span class="dot" style="background:#f6b94b"></span><span style="color:#e8c98d">Aguardando novo retorno</span>';
-        copyBtn.classList.add('hidden'); return;
+        codeEl.textContent = 'Código não encontrado na URL.';
+        codeEl.classList.add('placeholder');
+        document.getElementById('statusText').textContent = 'AGUARDANDO RETORNO';
+        document.getElementById('title').textContent = 'Nenhum código recebido';
+        document.getElementById('intro').textContent = 'Esta página precisa ser aberta após autorizar o Toshiro Bot no Discord.';
+        message.textContent = 'Volte ao servidor, inicie a verificação e conclua a autorização.';
+        message.classList.add('error');
+        return;
       }
+
       codeEl.textContent = code;
-      copyBtn.addEventListener('click', async () => {
+      codeEl.classList.remove('placeholder');
+      copyBtn.disabled = false;
+      document.getElementById('statusText').textContent = 'AUTORIZAÇÃO RECEBIDA';
+      document.getElementById('title').textContent = 'Código pronto para copiar';
+      message.textContent = 'Código recebido. Ele pode expirar após alguns minutos.';
+
+      async function copyCode() {
         try {
           await navigator.clipboard.writeText(code);
-          copyBtn.textContent = 'Código copiado!';
-          setTimeout(() => copyBtn.textContent = 'Copiar código', 1800);
-        } catch (_) {
-          const range = document.createRange(); range.selectNodeContents(codeEl);
-          const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(range);
-          copyBtn.textContent = 'Selecione e copie';
+          message.textContent = 'Código copiado! Cole-o no comando /verificar-codigo no Discord.';
+          message.className = 'message ok';
+          copyBtn.textContent = 'Copiado ✓';
+        } catch {
+          message.textContent = 'Não foi possível copiar automaticamente. Selecione e copie o código acima.';
+          message.className = 'message error';
         }
+      }
+      copyBtn.addEventListener('click', copyCode);
+      discordBtn.addEventListener('click', async () => {
+        await copyCode();
+        document.querySelector('.steps').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       });
     })();
   </script>
