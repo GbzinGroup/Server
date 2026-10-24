@@ -1,8 +1,45 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Login Discord — GBZin Tickets</title><link rel="stylesheet" href="/style.css"><script src="/config.js"></script></head>
-<body><header><a class="brand" href="/tickets/">◈ GBZin <span>Tickets</span></a></header><main><section class="hero"><p class="eyebrow">GBZIN TICKETS · LOGIN</p><h1>Entrar com <span>Discord</span></h1><p class="sub">O login será aberto no servidor de autenticação.</p><p id="status" class="note" role="status">Verificando configuração…</p><button id="login" class="primary" disabled>Continuar com Discord ↗</button><p><a href="/tickets/" style="color:#9ba8c3">Voltar ao painel</a></p></section></main>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Entrar com Discord — GBZin Tickets</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/config.js?v=2"></script>
+</head>
+<body>
+  <header><a class="brand" href="/tickets/">◈ GBZin <span>Tickets</span></a></header>
+  <main><section class="hero">
+    <p class="eyebrow">GBZIN TICKETS · LOGIN</p>
+    <h1>Entrar com <span>Discord</span></h1>
+    <p class="sub">Conecte sua conta Discord para abrir o painel de tickets.</p>
+    <p id="status" class="note" role="status" aria-live="polite">Verificando configuração…</p>
+    <button id="login" class="primary" type="button" disabled>Continuar com Discord ↗</button>
+    <p><a href="/tickets/" style="color:#9ba8c3">Voltar ao painel</a></p>
+  </section></main>
 <script>
-const statusEl=document.getElementById('status');const button=document.getElementById('login');const cfg=window.GBZIN_CONFIG||{};const backend=(cfg.BACKEND_URL||'').replace(/\/$/,'');
-if(!window.GBZIN_CONFIGURED){statusEl.textContent='Falta configurar a URL do servidor Node.js. Abra config.js no GitHub e substitua COLE_A_URL_DO_BACKEND_AQUI pela URL pública da BlazeHosting. Esta página não vai ficar carregando em loop.';}
-else {button.disabled=false;statusEl.textContent='Pronto para entrar.';button.addEventListener('click',()=>{statusEl.textContent='Abrindo o Discord…';window.location.assign(backend+'/auth/discord');});}
-</script></body></html>
+(() => {
+  const status = document.getElementById('status');
+  const button = document.getElementById('login');
+  const cfg = window.GBZIN_CONFIG || {};
+  const backend = String(cfg.BACKEND_URL || '').trim().replace(/\/$/, '');
+  const configured = /^https?:\/\//i.test(backend) && !backend.includes('COLE_A_URL');
+
+  if (!configured) {
+    status.textContent = 'O login ainda não está configurado. No GitHub, abra config.js na pasta principal do site e informe a URL pública do servidor Node.js. Sem esse servidor, o login Discord não pode funcionar.';
+    button.disabled = true;
+    return;
+  }
+
+  status.textContent = 'Servidor configurado. Clique para continuar para o Discord.';
+  button.disabled = false;
+  button.addEventListener('click', () => {
+    status.textContent = 'Abrindo o Discord…';
+    button.disabled = true;
+    window.location.href = backend + '/auth/discord';
+  });
+})();
+</script>
+</body>
+</html>
