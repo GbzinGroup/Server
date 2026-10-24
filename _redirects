@@ -1,5 +1,0 @@
-# Exemplo APENAS se a plataforma suportar proxy/rewrite. Troque BACKEND_HOST pelo host real do Node.js.
-/auth/discord https://BACKEND_HOST/auth/discord 200
-/auth/discord/callback https://BACKEND_HOST/auth/discord/callback 200
-/api/* https://BACKEND_HOST/api/:splat 200
-/health https://BACKEND_HOST/health 200
