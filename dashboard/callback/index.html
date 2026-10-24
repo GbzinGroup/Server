@@ -1,75 +1,33 @@
 <!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#080b13">
-<title>Conectando conta | Toshiro Dashboard</title>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080b13"><title>Retorno do Discord | Toshiro</title>
 <style>
-:root{color-scheme:dark;--bg:#080b13;--panel:#101725;--line:#243047;--text:#f5f7ff;--muted:#9aa8c3;--cyan:#71e7ff}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 50% 0,#1d3761 0,transparent 48%),var(--bg);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text)}main{width:min(100%,480px);text-align:center;padding:36px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(145deg,#131d30f5,#0c111cf7);box-shadow:0 24px 90px #0008}.logo{margin:0 auto 20px;width:58px;height:58px;display:grid;place-items:center;border-radius:18px;background:linear-gradient(135deg,#71e7ff,#527dff);color:#07111e;font-size:28px;font-weight:1000}.spinner{width:34px;height:34px;margin:22px auto;border:3px solid #26334a;border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}h1{font-size:27px;margin:0 0 10px}p{font-size:14px;line-height:1.65;color:var(--muted)}.message{margin-top:18px;padding:13px;border:1px solid var(--line);border-radius:12px;font-size:12px;line-height:1.6;color:#c9d6ed}.link{display:inline-block;margin-top:18px;color:var(--cyan);text-decoration:none;font-weight:800}.hidden{display:none}.foot{margin-top:28px;color:#64718a;font-size:10px;letter-spacing:1px}
-</style>
-</head>
-<body>
-<main>
-  <div class="logo">T</div>
-  <h1 id="heading">Conectando sua conta</h1>
-  <div id="spinner" class="spinner" aria-hidden="true"></div>
-  <p id="description">Estamos enviando a autorização ao servidor para validar sua sessão com segurança.</p>
-  <div id="message" class="message" role="status" aria-live="polite">Aguarde alguns instantes. Não feche esta página.</div>
-  <a id="back" class="link hidden" href="/dashboard/login/">Voltar ao login</a>
-  <div class="foot">GBZIN GROUP · TOSHIRO BOT</div>
-</main>
+:root{color-scheme:dark;--bg:#080b13;--line:#243047;--text:#f5f7ff;--muted:#9aa8c3;--cyan:#71e7ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 50% 0,#1d3761 0,transparent 48%),var(--bg);font-family:Inter,system-ui,sans-serif;color:var(--text)}main{width:min(100%,500px);padding:34px;border:1px solid var(--line);border-radius:24px;background:#101725;text-align:center}h1{font-size:28px}p{color:var(--muted);line-height:1.7;font-size:14px}.box{margin-top:18px;padding:14px;border:1px solid var(--line);border-radius:12px;text-align:left;font-size:12px;line-height:1.7;color:#c9d6ed;overflow-wrap:anywhere}a{display:inline-block;margin-top:18px;color:var(--cyan);font-weight:800;text-decoration:none}.logo{margin:auto;width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:linear-gradient(135deg,#71e7ff,#527dff);color:#07111e;font-size:25px;font-weight:1000}
+</style></head><body><main><div class="logo">T</div><h1 id="title">Retorno do Discord</h1><p id="description">Verificando os parâmetros retornados pelo Discord.</p><div class="box" id="details">Aguarde…</div><a href="/dashboard/login/">Voltar para o login</a></main>
 <script>
-(async () => {
-  const heading = document.getElementById("heading");
-  const description = document.getElementById("description");
-  const message = document.getElementById("message");
-  const spinner = document.getElementById("spinner");
-  const back = document.getElementById("back");
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get("code");
-  const state = params.get("state");
-  const oauthError = params.get("error");
-
-  function fail(title, text) {
-    heading.textContent = title;
-    description.textContent = "Não foi possível concluir a autenticação.";
-    message.textContent = text;
-    spinner.classList.add("hidden");
-    back.classList.remove("hidden");
-  }
-
-  if (oauthError) {
-    fail("Autorização cancelada", "O Discord não concluiu o login (" + oauthError + "). Você pode voltar e tentar novamente.");
-    return;
-  }
-  if (!code || !state) {
-    fail("Link incompleto", "Não recebemos o código e o state OAuth2 esperados. Inicie o login novamente.");
-    return;
-  }
-
-  try {
-    // O Client Secret nunca deve estar nesta página. O backend troca o code por token
-    // e valida state, sessão, usuário e permissões.
-    const response = await fetch("/api/dashboard/oauth/callback", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      credentials: "same-origin",
-      body: JSON.stringify({code, state})
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok || !data.ok) {
-      throw new Error(data.message || "O backend não conseguiu validar sua sessão.");
-    }
-    heading.textContent = "Login confirmado";
-    description.textContent = "Sua conta foi autenticada. Abrindo o painel...";
-    message.textContent = "Autenticação concluída com sucesso.";
-    window.location.replace(data.redirect || "/dashboard/");
-  } catch (error) {
-    fail("Não foi possível entrar", error.message || "O servidor de autenticação não respondeu.");
-  }
-})();
-</script>
-</body>
-</html>
+const params = new URLSearchParams(location.search);
+const code = params.get("code");
+const state = params.get("state");
+const error = params.get("error");
+const expected = sessionStorage.getItem("toshiro_oauth_state");
+const title = document.getElementById("title");
+const description = document.getElementById("description");
+const details = document.getElementById("details");
+if (error) {
+  title.textContent = "Autorização cancelada";
+  description.textContent = "Você não autorizou o acesso no Discord.";
+  details.textContent = "Código retornado: " + error;
+} else if (!code || !state) {
+  title.textContent = "Retorno incompleto";
+  description.textContent = "O Discord não retornou os parâmetros esperados.";
+  details.textContent = "Volte ao login e tente novamente.";
+} else if (!expected || state !== expected) {
+  title.textContent = "Verificação de segurança falhou";
+  description.textContent = "O parâmetro state não corresponde à tentativa iniciada neste navegador.";
+  details.textContent = "Por segurança, não prossiga. Volte ao login e tente novamente.";
+} else {
+  sessionStorage.removeItem("toshiro_oauth_state");
+  title.textContent = "Autorização recebida";
+  description.textContent = "O Discord retornou um código de autorização.";
+  details.textContent = "A página é estática do GitHub Pages: ela não pode trocar este código por um token nem confirmar permissões do servidor com segurança. Para concluir o login, conecte um backend seguro. Não compartilhe este endereço nem o código.";
+}
+</script></body></html>
