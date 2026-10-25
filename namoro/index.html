@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#160d1d">
+  <title>Maria Eduarda & Gabriel — Nossa história</title>
+  <style>
+    :root{color-scheme:dark;--pink:#ff8eb7;--rose:#ff5d91;--cream:#fff4f7;--muted:#d6bdca}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--cream);background:radial-gradient(ellipse at 15% 10%,#54213d 0,transparent 38%),radial-gradient(ellipse at 85% 85%,#342044 0,transparent 40%),#120b18;overflow-x:hidden}
+    .glow{position:fixed;width:280px;height:280px;border-radius:50%;filter:blur(90px);opacity:.22;pointer-events:none;background:#ff5d91;animation:float 9s ease-in-out infinite alternate}
+    .glow.one{top:10%;left:-100px}.glow.two{right:-110px;bottom:5%;background:#a66cff;animation-delay:-4s}
+    @keyframes float{to{transform:translate(35px,-25px) scale(1.2)}}
+    .wrap{width:min(920px,100%);margin:auto;padding:32px 20px 44px;position:relative}
+    header{text-align:center;padding:25px 0 10px}
+    .eyebrow{display:inline-flex;align-items:center;gap:9px;border:1px solid #ffffff20;background:#ffffff09;border-radius:999px;padding:9px 14px;color:#f4c7d8;font-size:.76rem;letter-spacing:.16em;text-transform:uppercase}
+    .heart{color:var(--rose);font-size:1rem;animation:beat 1.4s ease-in-out infinite}
+    @keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.22)}30%{transform:scale(1)}}
+    h1{font-family:Georgia,"Times New Roman",serif;font-weight:500;letter-spacing:-.045em;font-size:clamp(2.8rem,8vw,5.8rem);line-height:.98;margin:27px 0 15px}
+    h1 span{display:block;color:var(--pink);font-style:italic}
+    .subtitle{color:var(--muted);font-size:1.02rem;line-height:1.7;margin:0 auto;max-width:540px}
+    .date-pill{margin:24px auto 0;display:inline-block;padding:10px 15px;border-radius:12px;background:#ff8eb714;border:1px solid #ff8eb735;color:#ffd5e3;font-size:.9rem}
+    .timer-card{margin:38px auto 0;max-width:790px;padding:clamp(20px,4vw,36px);border:1px solid #ffffff1c;border-radius:28px;background:linear-gradient(145deg,#ffffff12,#ffffff05);box-shadow:0 24px 90px #00000030;backdrop-filter:blur(18px)}
+    .timer-heading{text-align:center;color:#e9cbd8;font-size:.78rem;text-transform:uppercase;letter-spacing:.18em;margin:0 0 23px}
+    .timer{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .unit{min-width:0;text-align:center;padding:20px 8px 17px;border-radius:18px;background:#10091478;border:1px solid #ffffff0c}
+    .number{display:block;font-variant-numeric:tabular-nums;font-size:clamp(2rem,6vw,3.5rem);font-weight:650;letter-spacing:-.055em;line-height:1.1;color:#fff7fa}
+    .label{display:block;margin-top:9px;color:#d4aebf;font-size:.72rem;text-transform:uppercase;letter-spacing:.13em}
+    .since{text-align:center;margin:20px 0 0;color:#f1c9d8;font-size:.9rem}
+    .message{max-width:650px;margin:34px auto 0;text-align:center;padding:0 12px}
+    .message .little-heart{font-size:1.6rem;color:var(--pink)}
+    .message h2{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:clamp(1.65rem,4vw,2.3rem);margin:12px 0;color:#ffe7ef}
+    .message p{color:#d8c2ce;line-height:1.9;margin:0;font-size:1rem}
+    .signature{margin-top:23px;color:var(--pink);font-family:Georgia,serif;font-size:1.2rem;font-style:italic}
+    footer{text-align:center;color:#9f8595;font-size:.75rem;margin-top:45px;letter-spacing:.04em}
+    .sparkles{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+    .sparkle{position:absolute;color:#ffc0d6;opacity:0;animation:rise var(--dur) linear infinite;left:var(--left);bottom:-30px;font-size:var(--size);animation-delay:var(--delay)}
+    @keyframes rise{0%{transform:translateY(0) rotate(0);opacity:0}12%{opacity:.55}85%{opacity:.35}100%{transform:translateY(-110vh) rotate(35deg);opacity:0}}
+    @media(max-width:520px){.wrap{padding:22px 15px 32px}.timer{gap:7px}.unit{padding:17px 3px 14px;border-radius:14px}.label{font-size:.6rem;letter-spacing:.08em}.timer-card{border-radius:22px}.subtitle{font-size:.94rem}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+  </style>
+</head>
+<body>
+  <div class="glow one"></div><div class="glow two"></div>
+  <div class="sparkles" aria-hidden="true" id="sparkles"></div>
+  <main class="wrap">
+    <header>
+      <div class="eyebrow"><span class="heart">♥</span> Uma história só nossa <span class="heart">♥</span></div>
+      <h1>Maria Eduarda <span>& Gabriel</span></h1>
+      <p class="subtitle">O dia em que a nossa história ganhou um novo capítulo — e cada segundo desde então passou a ter um significado especial.</p>
+      <div class="date-pill">♥ &nbsp; 27 de setembro de 2026</div>
+    </header>
+
+    <section class="timer-card" aria-label="Tempo de namoro">
+      <p class="timer-heading">Juntos há</p>
+      <div class="timer" role="timer" aria-live="off">
+        <div class="unit"><span class="number" id="days">00</span><span class="label">Dias</span></div>
+        <div class="unit"><span class="number" id="hours">00</span><span class="label">Horas</span></div>
+        <div class="unit"><span class="number" id="minutes">00</span><span class="label">Minutos</span></div>
+        <div class="unit"><span class="number" id="seconds">00</span><span class="label">Segundos</span></div>
+      </div>
+      <p class="since" id="since">Contando cada instante da nossa história.</p>
+    </section>
+
+    <section class="message">
+      <div class="little-heart">♡</div>
+      <h2>Meu lugar favorito é ao seu lado.</h2>
+      <p>Que esse seja só o começo de uma história linda, cheia de carinho, risadas, abraços demorados e sonhos realizados juntos. Entre tantos caminhos, que a gente continue escolhendo um ao outro, todos os dias.</p>
+      <div class="signature">Com amor, Gabriel ♥ Maria Eduarda</div>
+    </section>
+    <footer>FEITO COM AMOR · NOSSA HISTÓRIA, NOSSO TEMPO</footer>
+  </main>
+  <script>
+    // Data de início: 27/09/2026 às 00:00, no horário local do dispositivo.
+    const start = new Date(2026, 8, 27, 0, 0, 0);
+    const $ = id => document.getElementById(id);
+    const pad = n => String(n).padStart(2, '0');
+    function updateTimer(){
+      const now = new Date();
+      let diff = Math.max(0, now.getTime() - start.getTime());
+      const totalSeconds = Math.floor(diff / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      $('days').textContent = days;
+      $('hours').textContent = pad(hours);
+      $('minutes').textContent = pad(minutes);
+      $('seconds').textContent = pad(seconds);
+      $('since').textContent = now < start
+        ? 'Nossa contagem começa em 27 de setembro de 2026.'
+        : 'Cada segundo é mais um pedacinho da nossa história.';
+    }
+    updateTimer();
+    setInterval(updateTimer, 1000);
+    const sparkles = $('sparkles');
+    for(let i=0;i<18;i++){
+      const s=document.createElement('span');
+      s.className='sparkle';s.textContent=i%3===0?'♥':'✦';
+      s.style.setProperty('--left',Math.random()*100+'%');
+      s.style.setProperty('--dur',(9+Math.random()*13)+'s');
+      s.style.setProperty('--delay',(-Math.random()*20)+'s');
+      s.style.setProperty('--size',(9+Math.random()*12)+'px');
+      sparkles.appendChild(s);
+    }
+  </script>
+</body>
+</html>
