@@ -11,7 +11,7 @@
 <script>
 (() => {
   // Configure esta URL para a URL HTTPS pública real do backend do bot.
-  const API_BASE_URL = '';
+  const API_BASE_URL = 'https://CONFIGURE-A-SUA-API-HTTPS-AQUI';
   const title = document.getElementById('title');
   const description = document.getElementById('description');
   const status = document.getElementById('status');
@@ -24,10 +24,10 @@
   const show = (kind, heading, detail, message) => { title.textContent=heading; description.textContent=detail; status.className='status '+kind; statusText.textContent=message; };
   if (error) { show('error','Autorização cancelada','O Discord não concluiu a autorização. Volte ao servidor e execute /verificar novamente.', error==='access_denied'?'Você cancelou a autorização.':'O Discord retornou um erro de autorização.'); return; }
   if (!code || !state) { show('error','Link inválido','Não encontramos os dados de segurança necessários. Volte ao Discord e use /verificar novamente.','Código ou estado de segurança ausente.'); return; }
-  if (!API_BASE_URL || !/^https:\/\//i.test(API_BASE_URL)) { show('error','Configuração pendente','A página está pronta, mas falta configurar a URL HTTPS pública do backend do Toshiro em API_BASE_URL.','O administrador precisa publicar e configurar o backend OAuth.'); return; }
+  if (!API_BASE_URL || !/^https:\/\//i.test(API_BASE_URL)) { show('error','Configuração pendente','A página está pronta, mas falta configurar a URL HTTPS pública do backend do Toshiro em API_BASE_URL.','Configure API_BASE_URL com a URL HTTPS real do backend OAuth.'); return; }
   fetch(API_BASE_URL.replace(/\/+$/,'')+'/api/oauth/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,state}),cache:'no-store',credentials:'omit'})
     .then(async r=>{const data=await r.json().catch(()=>({}));if(!r.ok||!data.ok)throw new Error(data.message||'A verificação não foi concluída.');return data;})
-    .then(data=>{show('success','Conta verificada','Sua identidade foi confirmada e o cargo configurado foi aplicado. Você já pode voltar ao Discord.',data.message||'Verificação concluída.');extra.textContent='Pode fechar esta página com segurança.';})
+    .then(data=>{show('success','Autorização concluída','Copie o código abaixo e volte ao Discord para executar /verificar-code com esse código.',data.message||'Código gerado.');extra.innerHTML='';const label=document.createElement('div');label.textContent='Seu código de verificação';label.style.cssText='margin:18px 0 8px;color:#9eacc2;font-size:12px';const codeBox=document.createElement('div');codeBox.textContent=data.verificationCode||'Código indisponível';codeBox.style.cssText='font-size:32px;font-weight:800;letter-spacing:.18em;text-align:center;padding:18px;border:1px solid #25334a;border-radius:14px;background:#080d18;color:#70d9ff;user-select:all';const button=document.createElement('button');button.textContent='Copiar código';button.style.cssText='width:100%;margin-top:10px;padding:12px;border:0;border-radius:10px;background:#5865f2;color:white;font-weight:700;cursor:pointer';button.onclick=()=>navigator.clipboard.writeText(data.verificationCode||'').then(()=>button.textContent='Código copiado').catch(()=>button.textContent='Selecione e copie o código');extra.append(label,codeBox,button);})
     .catch(err=>show('error','Não foi possível verificar','Volte ao Discord e tente novamente. Se o problema continuar, avise a equipe do servidor.',err.message||'Falha de comunicação com o backend.'));
 })();
 </script></body></html>
