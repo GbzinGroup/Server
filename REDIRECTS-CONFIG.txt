@@ -1,11 +1,40 @@
-GBZIN TICKETS — CONFIGURAÇÃO DE ROTAS
+GBZIN / TOSHIRO — CONFIGURAÇÃO DE OAUTH2 E API
 
-As rotas abaixo devem ser encaminhadas ao servidor Node.js da BlazeHosting por proxy/rewrite (não apenas redirecionamento 301/302):
+IMPORTANTE
+O GitHub Pages serve apenas arquivos estáticos. Ele não lê o .env, não troca o
+código OAuth por tokens e não executa rotas /api. O backend Node.js deve ser
+hospedado em um serviço que execute Node.js e deve carregar as variáveis do .env.
+Não coloque DISCORD_CLIENT_SECRET, DISCORD_BOT_TOKEN ou SESSION_SECRET no frontend.
 
-/auth/discord       -> backend Node.js /auth/discord
-/auth/discord/callback -> backend Node.js /auth/discord/callback
-/api/*              -> backend Node.js /api/*
+1. CONFIGURAÇÃO DO FRONTEND
+Edite config.js e defina BACKEND_URL com a URL HTTPS pública do backend Node.js,
+sem barra no final. Não use gbzin.com.br aqui, a menos que esse domínio realmente
+encaminhe as rotas ao backend por proxy reverso.
 
-Os arquivos HTML públicos permanecem no GitHub Pages.
+2. ROTAS QUE PRECISAM CHEGAR AO BACKEND
+/auth/discord
+/auth/discord/callback
+/dashboard/login
+/dashboard/callback
+/api/*
 
-Se seu provedor de redirecionamento não oferece proxy/rewrite, login e APIs não funcionarão apenas com GitHub Pages. Nesse caso, hospede também a interface em um serviço que suporte proxy, ou configure um proxy compatível.
+Essas rotas precisam ser executadas pelo backend (proxy/rewrite ou domínio próprio
+do backend). Um redirecionamento HTTP simples não substitui uma API nem compartilha
+sessões/cookies entre origens.
+
+3. DISCORD DEVELOPER PORTAL
+Cadastre a Redirect URI exata esperada pelo backend. Se o backend usa
+https://api.seudominio.com/auth/discord/callback, cadastre exatamente essa URI.
+A URL deve coincidir caractere por caractere com a variável de ambiente usada
+pelo backend. Não aponte o callback OAuth para uma página HTML estática do GitHub Pages
+quando o backend é responsável por trocar o código OAuth por tokens.
+
+4. .ENV
+Mantenha o .env somente no ambiente privado do backend. O .gitignore impede que
+.env e variantes sejam adicionados acidentalmente ao Git; .env.example pode ser
+versionado sem segredos. Nunca copie os valores secretos para config.js.
+
+5. LIMITAÇÃO ATUAL DO REPOSITÓRIO
+Este repositório contém a interface estática, mas não contém o servidor Node.js que
+implementa as rotas OAuth/API. Para login e dashboard funcionarem de ponta a ponta,
+publique o backend e informe sua URL HTTPS antes de preencher config.js.
