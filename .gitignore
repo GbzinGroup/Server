@@ -1,0 +1,9 @@
+# Segredos e configuração local — nunca versionar o .env real
+.env
+.env.*
+!.env.example
+
+# Dependências e artefatos locais
+node_modules/
+npm-debug.log*
+.DS_Store
