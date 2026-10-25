@@ -23,7 +23,7 @@
     .date-pill{margin:24px auto 0;display:inline-block;padding:10px 15px;border-radius:12px;background:#ff8eb714;border:1px solid #ff8eb735;color:#ffd5e3;font-size:.9rem}
     .timer-card{margin:38px auto 0;max-width:790px;padding:clamp(20px,4vw,36px);border:1px solid #ffffff1c;border-radius:28px;background:linear-gradient(145deg,#ffffff12,#ffffff05);box-shadow:0 24px 90px #00000030;backdrop-filter:blur(18px)}
     .timer-heading{text-align:center;color:#e9cbd8;font-size:.78rem;text-transform:uppercase;letter-spacing:.18em;margin:0 0 23px}
-    .timer{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .timer{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
     .unit{min-width:0;text-align:center;padding:20px 8px 17px;border-radius:18px;background:#10091478;border:1px solid #ffffff0c}
     .number{display:block;font-variant-numeric:tabular-nums;font-size:clamp(2rem,6vw,3.5rem);font-weight:650;letter-spacing:-.055em;line-height:1.1;color:#fff7fa}
     .label{display:block;margin-top:9px;color:#d4aebf;font-size:.72rem;text-transform:uppercase;letter-spacing:.13em}
@@ -37,7 +37,8 @@
     .sparkles{position:fixed;inset:0;pointer-events:none;overflow:hidden}
     .sparkle{position:absolute;color:#ffc0d6;opacity:0;animation:rise var(--dur) linear infinite;left:var(--left);bottom:-30px;font-size:var(--size);animation-delay:var(--delay)}
     @keyframes rise{0%{transform:translateY(0) rotate(0);opacity:0}12%{opacity:.55}85%{opacity:.35}100%{transform:translateY(-110vh) rotate(35deg);opacity:0}}
-    @media(max-width:520px){.wrap{padding:22px 15px 32px}.timer{gap:7px}.unit{padding:17px 3px 14px;border-radius:14px}.label{font-size:.6rem;letter-spacing:.08em}.timer-card{border-radius:22px}.subtitle{font-size:.94rem}}
+    @media(max-width:680px){.timer{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}}
+    @media(max-width:520px){.wrap{padding:22px 15px 32px}.timer{gap:7px}.unit{padding:17px 3px 14px;border-radius:14px}.number{font-size:clamp(1.8rem,8vw,2.7rem)}.label{font-size:.6rem;letter-spacing:.08em}.timer-card{border-radius:22px}.subtitle{font-size:.94rem}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
   </style>
 </head>
@@ -55,7 +56,9 @@
     <section class="timer-card" aria-label="Tempo de namoro">
       <p class="timer-heading">Juntos há</p>
       <div class="timer" role="timer" aria-live="off">
-        <div class="unit"><span class="number" id="days">00</span><span class="label">Dias</span></div>
+        <div class="unit"><span class="number" id="years">0</span><span class="label">Anos</span></div>
+        <div class="unit"><span class="number" id="months">0</span><span class="label">Meses</span></div>
+        <div class="unit"><span class="number" id="days">0</span><span class="label">Dias</span></div>
         <div class="unit"><span class="number" id="hours">00</span><span class="label">Horas</span></div>
         <div class="unit"><span class="number" id="minutes">00</span><span class="label">Minutos</span></div>
         <div class="unit"><span class="number" id="seconds">00</span><span class="label">Segundos</span></div>
@@ -72,25 +75,62 @@
     <footer>FEITO COM AMOR · NOSSA HISTÓRIA, NOSSO TEMPO</footer>
   </main>
   <script>
-    // Data de início: 27/09/2026 às 00:00, no horário local do dispositivo.
+    // Início do namoro: 27/09/2026 às 00:00, no horário local do dispositivo.
+    // Se vocês começaram em outro horário, ajuste as horas/minutos nesta linha.
     const start = new Date(2026, 8, 27, 0, 0, 0);
     const $ = id => document.getElementById(id);
     const pad = n => String(n).padStart(2, '0');
-    function updateTimer(){
+
+    function addMonthsClamped(date, months) {
+      const result = new Date(date);
+      const day = result.getDate();
+      result.setDate(1);
+      result.setMonth(result.getMonth() + months);
+      const lastDay = new Date(result.getFullYear(), result.getMonth() + 1, 0).getDate();
+      result.setDate(Math.min(day, lastDay));
+      return result;
+    }
+
+    function updateTimer() {
       const now = new Date();
-      let diff = Math.max(0, now.getTime() - start.getTime());
-      const totalSeconds = Math.floor(diff / 1000);
+      if (now < start) {
+        ['years','months','days'].forEach(id => $(id).textContent = '0');
+        ['hours','minutes','seconds'].forEach(id => $(id).textContent = '00');
+        $('since').textContent = 'Nossa contagem começa em 27 de setembro de 2026.';
+        return;
+      }
+
+      // Calcula anos e meses de calendário primeiro, para não tratar cada mês como 30 dias.
+      let cursor = new Date(start);
+      let years = now.getFullYear() - cursor.getFullYear();
+      cursor = addMonthsClamped(cursor, years * 12);
+      if (cursor > now) {
+        years--;
+        cursor = addMonthsClamped(start, years * 12);
+      }
+
+      let months = (now.getFullYear() - cursor.getFullYear()) * 12 + now.getMonth() - cursor.getMonth();
+      let monthCursor = addMonthsClamped(cursor, months);
+      while (monthCursor > now) {
+        months--;
+        monthCursor = addMonthsClamped(cursor, months);
+      }
+      cursor = monthCursor;
+
+      const remainingMs = now.getTime() - cursor.getTime();
+      const totalSeconds = Math.floor(remainingMs / 1000);
       const days = Math.floor(totalSeconds / 86400);
       const hours = Math.floor((totalSeconds % 86400) / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = totalSeconds % 60;
+
+      $('years').textContent = years;
+      $('months').textContent = months;
       $('days').textContent = days;
       $('hours').textContent = pad(hours);
       $('minutes').textContent = pad(minutes);
       $('seconds').textContent = pad(seconds);
-      $('since').textContent = now < start
-        ? 'Nossa contagem começa em 27 de setembro de 2026.'
-        : 'Cada segundo é mais um pedacinho da nossa história.';
+      $('since').textContent = 'Cada segundo é mais um pedacinho da nossa história.';
     }
     updateTimer();
     setInterval(updateTimer, 1000);
