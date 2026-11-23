@@ -1,31 +1,363 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#080d18">
-  <title>Verificação Discord — Toshiro</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Verificação Discord — Atlas MC</title>
   <style>
-    :root{color-scheme:dark;--bg:#080d18;--card:#101827;--line:#25334a;--text:#f3f6fc;--muted:#9eacc2;--blue:#5865f2;--cyan:#70d9ff;--green:#57f287;--red:#ed4245}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 50% -10%,#24376b 0,transparent 50%),var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text)}.wrap{width:min(100%,470px)}.brand{display:flex;align-items:center;gap:12px;margin:0 auto 24px;width:max-content;font-weight:800;letter-spacing:.12em}.mark{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--blue),#2e9bdb);box-shadow:0 8px 28px #5865f244;font-size:22px}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:.06em;font-weight:500;margin-top:3px}.card{border:1px solid var(--line);border-radius:22px;padding:32px;background:linear-gradient(145deg,#121d30f5,#0c1422f5);box-shadow:0 25px 80px #0006}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:var(--cyan);font-weight:800}h1{font-size:clamp(25px,6vw,32px);letter-spacing:-.04em;line-height:1.12;margin:14px 0 12px}p{color:var(--muted);line-height:1.65;font-size:14px}.status{display:flex;gap:12px;align-items:flex-start;margin:24px 0 0;padding:15px;border:1px solid var(--line);border-radius:14px;background:#090f1b;color:#cbd6e7;font-size:13px;line-height:1.5}.dot{width:9px;height:9px;flex:0 0 9px;margin-top:5px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 4px #70d9ff16}.status.success .dot{background:var(--green);box-shadow:0 0 0 4px #57f28716}.status.error .dot{background:var(--red);box-shadow:0 0 0 4px #ed424516}.foot{text-align:center;color:#65758d;font-size:11px;margin:18px 0 0}.link{color:#9ab5ff;text-decoration:none}.link:hover{text-decoration:underline}@media(max-width:480px){.card{padding:24px;border-radius:18px}}
+    :root {
+      color-scheme: dark;
+      --bg: #0a0e1a;
+      --card: #111a2b;
+      --line: #1f2d45;
+      --text: #f0f4fc;
+      --muted: #8899b4;
+      --accent: #3b82f6;
+      --accent-glow: #3b82f640;
+      --cyan: #22d3ee;
+      --green: #34d399;
+      --red: #f87171;
+      --amber: #fbbf24;
+      --radius: 20px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% -20%, #1e3a8a33, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 80% 110%, #06b6d433, transparent 60%),
+        var(--bg);
+      font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap {
+      width: min(100%, 480px);
+    }
+
+    /* ── Brand ── */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 0 auto 28px;
+      width: max-content;
+      font-weight: 800;
+      letter-spacing: .14em;
+      font-size: 15px;
+    }
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #3b82f6, #06b6d4);
+      box-shadow: 0 0 30px #3b82f633, inset 0 1px 0 #ffffff22;
+      font-size: 20px;
+      font-weight: 900;
+      color: #fff;
+    }
+    .brand-text small {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: .08em;
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    /* ── Card ── */
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      background: linear-gradient(160deg, #141e30f0, #0d1523f0);
+      box-shadow:
+        0 30px 90px #00000066,
+        inset 0 1px 0 #ffffff08;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), var(--cyan), transparent);
+      opacity: .7;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      color: var(--cyan);
+      font-weight: 800;
+      background: #22d3ee12;
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid #22d3ee22;
+    }
+
+    h1 {
+      font-size: clamp(26px, 5.5vw, 34px);
+      letter-spacing: -.035em;
+      line-height: 1.1;
+      margin: 18px 0 12px;
+      font-weight: 800;
+    }
+
+    p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    /* ── Status ── */
+    .status {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin: 24px 0 0;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #0a101c;
+      color: #cbd6e7;
+      font-size: 13px;
+      line-height: 1.55;
+      transition: border-color .3s, background .3s;
+    }
+    .dot {
+      width: 9px;
+      height: 9px;
+      flex: 0 0 9px;
+      margin-top: 5px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 0 4px #22d3ee18;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .5; }
+    }
+    .status.success { border-color: #34d39944; background: #0a1a14; }
+    .status.success .dot { background: var(--green); box-shadow: 0 0 0 4px #34d39918; animation: none; }
+    .status.error { border-color: #f8717144; background: #1a0a0c; }
+    .status.error .dot { background: var(--red); box-shadow: 0 0 0 4px #f8717118; animation: none; }
+
+    /* ── Extra / Code ── */
+    #extra { margin-top: 0; }
+
+    .code-label {
+      margin: 22px 0 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .code-box {
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      overflow-wrap: anywhere;
+      line-height: 1.65;
+      text-align: center;
+      padding: 20px 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #070c15;
+      color: var(--cyan);
+      user-select: all;
+      letter-spacing: .02em;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .code-box:hover {
+      border-color: #22d3ee44;
+      box-shadow: 0 0 24px #22d3ee0a;
+    }
+
+    .copy-btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 14px;
+      border: 1px solid #3b82f633;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      letter-spacing: .02em;
+      transition: transform .15s, box-shadow .2s, background .2s;
+      box-shadow: 0 4px 20px #3b82f633;
+    }
+    .copy-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px #3b82f644;
+    }
+    .copy-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 12px #3b82f633;
+    }
+    .copy-btn.copied {
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-color: #34d39955;
+      box-shadow: 0 4px 20px #34d39933;
+    }
+
+    /* ── Footer ── */
+    .foot {
+      text-align: center;
+      color: #4e5e78;
+      font-size: 11px;
+      margin: 22px 0 0;
+      line-height: 1.6;
+    }
+    .link {
+      color: #7da6ff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .link:hover { text-decoration: underline; }
+
+    @media (max-width: 480px) {
+      .card { padding: 26px 22px; border-radius: 16px; }
+      .brand { margin-bottom: 22px; }
+      .mark { width: 40px; height: 40px; border-radius: 12px; font-size: 18px; }
+    }
   </style>
 </head>
-<body><main class="wrap"><div class="brand"><span class="mark">T</span><span>TOSHIRO<small>BY GBZIN GROUP</small></span></div><section class="card"><span class="eyebrow">Autenticação oficial do Discord</span><h1 id="title">Confirmando sua conta</h1><p id="description">Estamos validando a autorização com segurança. Não feche esta página.</p><div class="status" id="status" role="status" aria-live="polite"><span class="dot"></span><span id="statusText">Conectando ao serviço de verificação…</span></div><p id="extra"></p></section><div class="foot">Sua senha nunca é solicitada por este site. <a class="link" href="https://discord.com/" rel="noreferrer">Discord</a></div></main>
-<script>
-(() => {
-  const title=document.getElementById('title'), description=document.getElementById('description');
-  const status=document.getElementById('status'), statusText=document.getElementById('statusText'), extra=document.getElementById('extra');
-  const params=new URLSearchParams(location.search), code=params.get('code'), state=params.get('state'), error=params.get('error');
-  const show=(kind,heading,detail,message)=>{title.textContent=heading;description.textContent=detail;status.className='status '+kind;statusText.textContent=message;};
-  if(error){show('error','Autorização cancelada','Volte ao Discord e execute /verificar novamente.',error==='access_denied'?'Você cancelou a autorização.':'O Discord retornou um erro de autorização.');return;}
-  if(!code||!state){show('error','Link inválido','Não encontramos os dados necessários. Volte ao Discord e use /verificar novamente.','Código ou state ausente.');return;}
-  // O GitHub Pages é estático: não troca tokens nem contém Client Secret.
-  // O pacote é vinculado ao state aleatório criado pelo bot e só pode ser resgatado pelo usuário original.
-  const bundle=btoa(unescape(encodeURIComponent(JSON.stringify({c:code,s:state}))))
-    .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-  show('success','Autorização concluída','Copie o código abaixo e volte ao Discord para executar /verificar-code.', 'A autorização foi recebida. O bot validará o código ao resgatá-lo.');
-  extra.innerHTML='';
-  const label=document.createElement('div');label.textContent='Seu código de verificação';label.style.cssText='margin:18px 0 8px;color:#9eacc2;font-size:12px';
-  const codeBox=document.createElement('div');codeBox.textContent=bundle;codeBox.style.cssText='font-size:14px;font-weight:700;overflow-wrap:anywhere;line-height:1.6;text-align:center;padding:18px;border:1px solid #25334a;border-radius:14px;background:#080d18;color:#70d9ff;user-select:all';
-  const button=document.createElement('button');button.textContent='Copiar código';button.style.cssText='width:100%;margin-top:10px;padding:12px;border:0;border-radius:10px;background:#5865f2;color:white;font-weight:700;cursor:pointer';
-  button.onclick=()=>navigator.clipboard.writeText(bundle).then(()=>button.textContent='Código copiado').catch(()=>button.textContent='Selecione e copie o código');
-  extra.append(label,codeBox,button);
-})();
-</script></body></html>
+<body>
+  <main class="wrap">
+    <div class="brand">
+      <span class="mark">A</span>
+      <span class="brand-text">
+        ATLAS MC
+        <small>BY GBZIN GROUP</small>
+      </span>
+    </div>
+
+    <section class="card">
+      <span class="eyebrow">Autenticação oficial do Discord</span>
+      <h1 id="title">Confirmando sua conta</h1>
+      <p id="description">Estamos validando a autorização com segurança. Não feche esta página.</p>
+
+      <div class="status" id="status" role="status" aria-live="polite">
+        <span class="dot"></span>
+        <span id="statusText">Conectando ao serviço de verificação…</span>
+      </div>
+
+      <div id="extra"></div>
+    </section>
+
+    <div class="foot">
+      Sua senha nunca é solicitada por este site.
+      <a class="link" href="https://discord.com/" rel="noreferrer">Discord</a>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      const title = document.getElementById('title');
+      const description = document.getElementById('description');
+      const status = document.getElementById('status');
+      const statusText = document.getElementById('statusText');
+      const extra = document.getElementById('extra');
+
+      const params = new URLSearchParams(location.search);
+      const code = params.get('code');
+      const state = params.get('state');
+      const error = params.get('error');
+
+      const show = (kind, heading, detail, message) => {
+        title.textContent = heading;
+        description.textContent = detail;
+        status.className = 'status ' + kind;
+        statusText.textContent = message;
+      };
+
+      if (error) {
+        show(
+          'error',
+          'Autorização cancelada',
+          'Volte ao Discord e execute /verificar novamente.',
+          error === 'access_denied'
+            ? 'Você cancelou a autorização.'
+            : 'O Discord retornou um erro de autorização.'
+        );
+        return;
+      }
+
+      if (!code || !state) {
+        show(
+          'error',
+          'Link inválido',
+          'Não encontramos os dados necessários. Volte ao Discord e use /verificar novamente.',
+          'Código ou state ausente.'
+        );
+        return;
+      }
+
+      // O GitHub Pages é estático: não troca tokens nem contém Client Secret.
+      // O pacote é vinculado ao state aleatório criado pelo bot e só pode ser resgatado pelo usuário original.
+      const bundle = btoa(unescape(encodeURIComponent(JSON.stringify({ c: code, s: state }))))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+
+      show(
+        'success',
+        'Autorização concluída',
+        'Copie o código abaixo e volte ao Discord para executar /verificar-code.',
+        'A autorização foi recebida. O bot validará o código ao resgatá-lo.'
+      );
+
+      extra.innerHTML = '';
+
+      const label = document.createElement('div');
+      label.className = 'code-label';
+      label.textContent = 'Seu código de verificação';
+
+      const codeBox = document.createElement('div');
+      codeBox.className = 'code-box';
+      codeBox.textContent = bundle;
+
+      const button = document.createElement('button');
+      button.className = 'copy-btn';
+      button.textContent = '📋  Copiar código';
+
+      button.onclick = () => {
+        navigator.clipboard.writeText(bundle).then(() => {
+          button.textContent = '✓  Código copiado!';
+          button.classList.add('copied');
+          setTimeout(() => {
+            button.textContent = '📋  Copiar código';
+            button.classList.remove('copied');
+          }, 2500);
+        }).catch(() => {
+          // Fallback para navegadores sem clipboard API
+          const range = document.createRange();
+          range.selectNodeContents(codeBox);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          button.textContent = 'Selecione e copie manualmente';
+        });
+      };
+
+      extra.append(label, codeBox, button);
+    })();
+  </script>
+</body>
+</html>
